@@ -1,0 +1,33 @@
+#!/bin/bash
+# call programs of the structure manipulation package
+
+# change the following path according to your system:
+####
+STRUC_MANIP=/home/lv70151/plasser1/programs/STRUC_MANIP/STRUC_MANIP.2012-08-11
+####
+
+# the remaining part can stay the same
+if [ -d ${STRUC_MANIP} ]
+then
+   echo "found ${STRUC_MANIP}"
+else
+   echo "${STRUC_MANIP} does not exist"
+   echo "please modify the file"
+   echo "$0"
+   exit 1
+fi
+
+export PYTHONPATH=${STRUC_MANIP}/lib
+export PATH=${STRUC_MANIP}/scripts:${PATH}
+
+if [ $# -eq 0 ]
+then
+  dir=${STRUC_MANIP}/scripts
+  echo "Available scripts in $dir:"
+  cd $dir
+  ls *py
+else
+  echo "Calling:"
+  which $1
+  $*
+fi
