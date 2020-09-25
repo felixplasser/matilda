@@ -9,7 +9,7 @@ usage: Print out the value of a specified internal coordinate.
 import os, sys, locale
 import numpy
 import openbabel
-import file_handler, struc_linalg
+from struc_manip import file_handler, struc_linalg
 
 if len(sys.argv) < 5:
    print 'At least one argument required.'

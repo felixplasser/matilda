@@ -9,7 +9,7 @@ usage: Superimpose structures <struc1>, <struc2>, ... onto <ref_struc>.
 """
 
 import os, sys
-import struc_linalg
+from struc_manip import struc_linalg
 
 if len(sys.argv) < 3:
    print 'At least two arguments required.'

@@ -10,7 +10,7 @@ import os, sys, locale
 import numpy
 #import openbabel
 import pybel
-import file_handler, struc_linalg
+from struc_manip import file_handler, struc_linalg
 
 def print_info():
     print 'Usage example: int_coor_multi.py dist 4 5 struc.xyz'

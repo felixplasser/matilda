@@ -7,7 +7,7 @@ usage: example of performing a linear interpolation between two structures with 
 """
 
 import os, sys
-import struc_linalg
+from struc_manip import struc_linalg
 
 if not len(sys.argv) == 6:
    print 'Five arguments required.'
