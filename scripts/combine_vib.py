@@ -17,7 +17,7 @@ except:
     raise
 
 try:
-    import file_handler, struc_linalg, superposition, vib_molden
+    from struc_manip import file_handler, struc_linalg, superposition, vib_molden
 except:
     print "Error in importing module of this distribution"
     print "check the PYTHONPATH environment variable"
