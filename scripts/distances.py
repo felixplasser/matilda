@@ -7,7 +7,7 @@ usage: Print out a table with distances between structures. They are superimpose
 """
 #!/usr/bin/python
 import os, sys
-from struc_manip import struc_linalg
+from matilda import struc_linalg
 
 if len(sys.argv) < 2:
    print 'At least one argument required.'

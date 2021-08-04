@@ -7,8 +7,8 @@ usage: Add a multiple of a normal mode to a structure.
 """
 
 import os, sys
-from struc_manip import vib_molden # from nma
-from struc_manip import struc_linalg
+from matilda import vib_molden # from nma
+from matilda import struc_linalg
 
 if len(sys.argv) < 6:
    print 'At least 5 arguments required.'

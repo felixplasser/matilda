@@ -8,7 +8,7 @@ usage: Package for reading a molden input vibration file.
 
 import os
 import numpy
-import file_handler
+from . import file_handler
 
 def convert_molden2xyz(path='.', name='molden.input'):
     """

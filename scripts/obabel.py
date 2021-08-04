@@ -14,7 +14,7 @@ usage: molecular structure conversion based on the openbabel package
 
 #import argparse - only available in version 2.7
 import sys
-from struc_manip import struc_linalg
+from matilda import struc_linalg
 
 
 if len(sys.argv) < 4+1:

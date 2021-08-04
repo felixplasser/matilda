@@ -18,7 +18,7 @@ except:
     raise
 
 try:
-    from struc_manip import file_handler, struc_linalg, superposition
+    from matilda import file_handler, struc_linalg, superposition
 except:
     print "Error in importing module of this distribution"
     print "check the PYTHONPATH environment variable"

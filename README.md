@@ -1,5 +1,5 @@
 #  MATILDA
-## Molecular structure Alignment, Transformation, Insertion, Linear interpolation, Distance and Angle toolbox
+## Molecular Alignment, Transformation, Insertion, Linear interpolation, Distance and Angle toolbox
 
 Scripts for manipulation, comparison and conversion of molecular structures (previously struc_manip).
 

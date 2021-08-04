@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2
 
 print """
 version 1.0.0
@@ -54,30 +54,19 @@ class template:
         Enter '<index> [<weight>]', <weight> specifies a manual weighting factor. Default is the atomic mass.
         Enter '-' to include an atom which has no corresponding atom in the template.
         Enter 'x' to discard an atom of the inserted molecule.
-        Enter '--' if all following atoms have no corresponding atom in the template.
-        Enter 'xx' to discard all following atoms.
         """
     
         at_list_ref = []
         at_list_ins = []
         not_list_ins = []
         mass_vect = []
-        for iat in range(1,ins.num_at+1):
+        for iat in xrange(1,ins.num_at+1):
             
             ind_inp = ky_file.def_input("Ind. %3i"%iat)
             if ind_inp == '-':
                 not_list_ins.append(iat)
-            elif ind_inp == '--':
-                for jat in range(iat, ins.num_at+1):
-                    not_list_ins.append(jat)
-                break
-            elif ind_inp == '-':
-                not_list_ins.append(iat)
             elif ind_inp == 'x':
-                print('  - skipping atom')
-            elif ind_inp == 'xx':
-                print('  - skipping all following atoms')
-                break
+                print '  - skipping atom'
             else:
                 inp_list = ind_inp.split()
                 at_list_ref.append(int(inp_list[0]))
