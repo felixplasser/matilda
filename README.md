@@ -11,4 +11,6 @@ Scripts for manipulation, comparison and conversion of molecular structures (pre
 * **D**istance measurement between two atoms
 * **A**ngles and torsion angles
 
+[Documentation (under construction)](https://felixplasser.github.io/matilda/)
+
 These scripts were originally written about ten years ago. Some of this still has to be cleaned up.
