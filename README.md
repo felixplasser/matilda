@@ -3,4 +3,12 @@
 
 Scripts for manipulation, comparison and conversion of molecular structures (previously struc_manip).
 
-These are some old scripts, written a while ago. Some of this still has to be cleaned up.
+* **M**olecular structure manipulation
+* **A**lignment via a least squares fit
+* **T**ransformation
+* **I**nsertion of a molecule/ligand into a larger template
+* **L**inear interpolation between two structures
+* **D**istance measurement between two atoms
+* **A**ngles and torsion angles
+
+These scripts were originally written about ten years ago. Some of this still has to be cleaned up.
