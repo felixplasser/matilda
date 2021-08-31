@@ -15,7 +15,7 @@ except ImportError:
     print(" *** Warning: python-openbabel not found! ***")
     print(" Using emulation program with limited capabilities ...")
     from . import OB_repl as openbabel
-from . import units, error_handler
+from . import units, error_handler, superposition, file_handler
 from .atominfo import symbol_Z_dict, Z_symbol_dict
 
 veloc_types = ['vtxyz','vnx'] # these are defined below
@@ -244,6 +244,25 @@ class structure:
         vec = numpy.cross(xyz2-xyz1, xyz3-xyz1)
         return vec / numpy.linalg.norm(vec)
 
+    def ret_rotated_structure(self, theta, vec, name=''):
+        """
+        Return the structure rotated by <theta> around <vec>.
+        """
+        if name == '': name = self.name
+
+        coor_mat = self.ret_3xN_matrix()
+
+        sup = superposition.superposition()
+        sup.set_rotation(theta, vec)
+
+        #print coor_mat
+        #print sup.ret_rotation_matrix()
+        coor_mat = numpy.dot(coor_mat, sup.ret_rotation_matrix().transpose())
+
+        ret_struc = structure(name=name)
+        ret_struc.read_file_3xN_matrix(self.file_path, self.file_type, coor_mat)
+        return ret_struc
+
     def ret_moved_structure(self, add_vec, name=''):
         """
         Move the structure by <add_vec>.
@@ -255,6 +274,80 @@ class structure:
 
         ret_struc = structure(name=name)
         ret_struc.read_file_3xN_matrix(self.file_path, self.file_type, coor_mat)
+        return ret_struc
+
+    def ret_superimposed_structure(self, struc, mass_wt_pw=1, name='', manual_wts=[]):
+        """
+        Return this structure superimposed on another structure.
+        <self> is fitted onto <struc>.
+        <mass_wt_pw>=1 means regular mass weighting.
+        <manual_wts> is a nested list [[ind1,wt1],...] with weights that can be put in by hand. Indices start with 1.
+        """
+        if name == '': name = self.name
+
+        coor_mat = self.ret_3xN_matrix()
+
+        mass_vect = self.ret_mass_vector(power=mass_wt_pw)
+        for ind, weight in manual_wts:
+            mass_vect[ind-1] = weight
+
+        sup = superposition.superposition()
+        sup.superimpose(ref_points=struc.ret_3xN_matrix(), mv_points=coor_mat, weights=mass_vect)
+        sup.print_all_info()
+
+        coor_mat = coor_mat - sup.ret_mv_av()
+        coor_mat = numpy.dot(coor_mat, sup.ret_rotation_matrix().transpose())
+        coor_mat = coor_mat + sup.ret_ref_av()
+
+        #print coor_mat
+
+        ret_struc = structure(name=name)
+        ret_struc.read_file_3xN_matrix(self.file_path, self.file_type, coor_mat)
+
+#         print 'rmsd', sup.ret_rmsd()
+#        print 'angle', sup.ret_rotation_angle()
+#        print 'axis', sup.ret_rotation_axis()
+#         print 'centers', sup.ret_ref_av(), sup.ret_mv_av()
+#        print 'matrix'
+#        print sup.ret_rotation_matrix()
+#         print 'orthogonal matrix?'
+#         print numpy.dot(sup.ret_rotation_matrix(), sup.ret_rotation_matrix().transpose())
+
+        return ret_struc
+
+    def ret_renumbered_structure_file(self, ren_file, name=''):
+        """
+        Renumber the structure with input from <ren_file>.
+        """
+        ren_lines = open(ren_file, 'r').readlines()
+        ren_list = [[eval(word) for word in file_handler.line_to_words(line)] for line in ren_lines]
+        return self.ret_renumbered_structure(ren_list, name)
+
+    def ret_renumbered_structure(self, perm_list, name=''):
+        """
+        Do permutations of atoms according to cyclic permutations in <perm_list>.
+        This is important for molecules with symmetry or sigma bond rotations. A superposition can be done afterwards.
+        example <perm_list>: [[1,2],[3],[6,7,8]...]
+            switches 1 and 2, leaves 3 unchanged, and cyclically exchanges 6,7,8
+        All atoms must be included exactly once.
+        """
+
+        if name == '': name = self.name
+
+        start_mat = self.ret_3xN_matrix()
+
+        num_at = self.mol.NumAtoms()
+
+        trans_mat = numpy.zeros((num_at, num_at), float) # matrix multiplication with this matrix leads to the structure with permutated atom numbering
+        for cycle in perm_list:
+            for i in xrange(len(cycle)-1):
+                trans_mat[cycle[i]-1, cycle[i+1]-1] = 1
+            trans_mat[cycle[len(cycle)-1]-1, cycle[0]-1] = 1
+
+        new_vec = numpy.dot(trans_mat, start_mat)
+
+        ret_struc = structure(name=name)
+        ret_struc.read_file_3xN_matrix(self.file_path, self.file_type, new_vec)
         return ret_struc
 
     def ret_bond_length(self, i, j):
@@ -476,8 +569,8 @@ class structure:
             obconversion = openbabel.OBConversion()
             if not obconversion.SetOutFormat(ftype):
                 raise error_handler.MsgError("Format %s not supported by openbabel for output."%ftype)
-            if not obconversion.WriteFile(self.mol, file_path):
-                raise error_handler.MsgError("Error writing coordinate file %s"%file_path)
+            #if not obconversion.WriteFile(self.mol, file_path):
+            #    raise error_handler.MsgError("Error writing coordinate file %s"%file_path)
         if lvprt >= 1:
             print(("Coordinate file %s written."%file_path))
 
@@ -619,3 +712,147 @@ class veloc:
            exit(1)
 
         wfile.close()
+
+class mol_calc:
+    """
+    Class for doing calculations.
+    A default file path is needed.
+    For larger molecules it is not really efficient to create the whole structure instance everytime.
+    It would be more useful to do it only with the coordinates.
+    """
+    def __init__(self, def_file_path, file_type='tmol'):
+        # def_file_path is separately read in because with passing arguments the original objects would also be changed
+            # maybe this would not occur if "return" would be used
+        self.def_file_path = def_file_path
+        self.file_type = file_type
+
+    # return a set of structures
+    def gram_schmidt(self, structures):
+        """
+        Returns an orthogonal system that spans the same space as *structures*.
+        """
+        b_list = [] # list of the orthogonal vectors
+
+        for struc in structures:
+            cn1 = struc.ret_vector()
+
+            bn1 = cn1
+            for bk in b_list:
+                bn1 -= numpy.dot(cn1, bk) / numpy.dot(bk,bk) * bk
+
+            bn1 = bn1 / numpy.dot(bn1,bn1)**.5
+            b_list += [bn1]
+
+        #print numpy.array([[numpy.dot(bi, bj) for bi in b_list] for bj in b_list])
+
+        return [self.make_structure(bi) for bi in b_list]
+
+
+    # return a structure
+    def make_structure(self, vector, name=''):
+        """
+        Return the structure that corresponds to a vector.
+        """
+        ret_struc = structure(name)
+        ret_struc.read_file_vector(self.def_file_path, self.file_type, vector)
+        return ret_struc
+
+    def add(self, struc1, struc2):
+        return self.make_structure(struc1.ret_vector() + struc2.ret_vector())
+
+    def subtract(self, struc1, struc2):
+        #print struc1.ret_vector()
+        #print struc2.ret_vector()
+        return self.make_structure(struc1.ret_vector() - struc2.ret_vector())
+        #print "subtract done"
+
+    def scalar_mult(self, scalar, struc):
+        return self.make_structure(scalar * struc.ret_vector())
+
+    def mean_structure(self, struc_list):
+        """
+        Return the mean structure of <struc_list>.
+        """
+        factor = 1. / len(struc_list)
+        sum_struc = reduce(lambda struc1, struc2: self.add(struc1, struc2), struc_list)
+
+        return self.scalar_mult(factor, sum_struc)
+
+    def projected_structure(self, struc, ref_struc, diff_strucs, mass_wt=False):
+        " Project the structure <struc> into the (hyper)plane defined by structures <ref_struc> and <diff_strucs> "
+        shifted_struc = self.subtract(struc, ref_struc)
+
+        o_diff_strucs = self.gram_schmidt(diff_strucs)
+
+        ret_struc = ref_struc
+        for o_struc in o_diff_strucs:
+            factor = self.inner_product(o_struc, shifted_struc)
+            plus_struc = self.scalar_mult(factor, o_struc)
+            ret_struc = self.add(ret_struc, plus_struc)
+
+        return ret_struc
+
+    # return a scalar
+    def inner_product(self, struc1, struc2, mass_wt_pw=1):
+        if mass_wt_pw == 0:
+            return numpy.dot(struc1.ret_vector(), struc2.ret_vector())
+        else:
+            ## divide by the trace ???
+            vec1 = numpy.dot(struc1.ret_vector(), self.ret_mass_matrix(power=mass_wt_pw))
+            return numpy.dot(vec1, struc2.ret_vector())
+
+    def norm(self, struc, mass_wt_pw=1):
+        return numpy.sqrt(self.inner_product(struc, struc, mass_wt_pw))
+
+    def distance(self, struc1, struc2, mass_wt_pw=1):
+        """
+        Return the distance between to structures in amu**(-1/2)*A. The distance as defined here is the RMSD times the squareroot of the molecular mass.
+        """
+        return self.norm(self.subtract(struc1, struc2), mass_wt_pw)
+        #print 'distance done'
+
+    def angle(self, struc1, struc2, mass_wt_pw=False):
+        """
+        Return the angle between two structure vectors or normal modes in degrees.
+        """
+        return numpy.arccos(self.inner_product(struc1, struc2, mass_wt_pw=mass_wt_pw) / self.norm(struc1, mass_wt_pw=mass_wt_pw) / self.norm(struc2, mass_wt_pw=mass_wt_pw)) / numpy.pi * 180
+
+    # return different output
+    def ret_mass_vector(self, power=1):
+        """
+        Returns a vector with the masses of the atoms (each 1 time) taken to the <power> power.
+        """
+        def_struc = structure()
+        def_struc.read_file(self.def_file_path, self.file_type) # mass weighing in this case not needed
+        return def_struc.ret_mass_vector(power=power)
+
+    def ret_mass_matrix(self, power=1):
+        """
+        Returns a diagonal matrix that contains the masses of the atoms (each 3 times).
+        <power=.5> gives the squareroots which is typical mass weighting.
+        """
+        def_struc = structure()
+        def_struc.read_file(self.def_file_path, self.file_type) # mass weighing in this case not needed
+        mass_list = []
+        #for atom in openbabel.OBMolAtomIter(def_struc.mol):
+        for i in xrange(def_struc.mol.NumAtoms()):
+            atom = def_struc.mol.GetAtom(i+1)
+            mass_list += 3*[atom.GetAtomicMass()**power]
+
+        ret_mat = numpy.zeros((len(mass_list), len(mass_list)), dtype=float)
+        for i in xrange(len(mass_list)):
+            ret_mat[i,i]=mass_list[i]
+
+        return ret_mat
+
+    def distance_table(self, struc_list, mass_wt_pw, digits=4):
+        """
+        Return a table with the RMSDs between the structures in struc_list.
+        <digits> specifies how many digits after the decimal point are printed out.
+        """
+        #print 'in distance_table'
+        tm = file_handler.table_maker([5] + (len(struc_list)-1) * [digits+4])
+        tm.write_line([''] + [struc.name for struc in struc_list[1:]])
+        for i,struc1 in enumerate(struc_list[:-1]):
+            tm.write_line([struc1.name] + [''] * i + [locale.format("%.*f", (digits, self.distance(struc1, struc2, mass_wt_pw=mass_wt_pw))) for struc2 in struc_list[i+1:]])
+        return tm.return_table()
