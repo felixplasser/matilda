@@ -44,7 +44,7 @@ for i,super_file in enumerate(super_files):
     strucs += [struc_linalg.structure(name=super_file[:9])]
     strucs[-1].read_file(file_path=super_file, file_type=file_type)
     # superimpose the structures
-    strucs += [strucs[-1].ret_superimposed_structure(struc=ref, mass_wt_pw=mass_wt_pw, name=super_file[:2]+'_X')]
+    strucs += [strucs[-1].ret_superimposed_structure(struc=ref, mass_wt_pw=mass_wt_pw, name='SI_%s'%super_file)]
     strucs[-1].make_coord_file('SI_' + super_file,file_type=file_type)
 
 # to follow the effect of the superposition, a matrix with the distances can be printed out
