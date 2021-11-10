@@ -101,7 +101,7 @@ class superposition:
             print "Rotation matrix:"
             print self.ret_rotation_matrix()
         print "Rotation angle (degree): %7.3f"%(self.ret_rotation_angle()*180/numpy.pi)
-        print "RMSD after superposition (A): %8.4f"%self.ret_rmsd()
+        print "RMSD after superposition (A): %10.6f"%self.ret_rmsd()
     
     def ret_rmsd(self):
         """

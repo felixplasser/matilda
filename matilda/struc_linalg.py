@@ -569,8 +569,8 @@ class structure:
             obconversion = openbabel.OBConversion()
             if not obconversion.SetOutFormat(ftype):
                 raise error_handler.MsgError("Format %s not supported by openbabel for output."%ftype)
-            #if not obconversion.WriteFile(self.mol, file_path):
-            #    raise error_handler.MsgError("Error writing coordinate file %s"%file_path)
+            if not obconversion.WriteFile(self.mol, file_path):
+                raise error_handler.MsgError("Error writing coordinate file %s"%file_path)
         if lvprt >= 1:
             print(("Coordinate file %s written."%file_path))
 
@@ -806,10 +806,25 @@ class mol_calc:
 
     def distance(self, struc1, struc2, mass_wt_pw=1):
         """
-        Return the distance between to structures in amu**(-1/2)*A. The distance as defined here is the RMSD times the squareroot of the molecular mass.
+        Return the distance between two structures in amu**(-1/2)*A.
+        The distance as defined here is the RMSD times the squareroot of the molecular mass.
         """
         return self.norm(self.subtract(struc1, struc2), mass_wt_pw)
         #print 'distance done'
+
+    def RMSD(self, struc1, struc2, mass_wt_pw=1):
+        """
+        Return the RMSD between two structures in Ang per atom.
+        RMSD = sqrt(dist * M * dist / tr(M) * 3)
+        """
+        mmat = self.ret_mass_matrix(power=mass_wt_pw)
+        mass = numpy.trace(mmat)
+
+        dist = struc2.ret_vector() - struc1.ret_vector()
+        mdist = numpy.dot(mmat, dist)
+        tmp  = numpy.dot(dist, mdist)
+
+        return (tmp/mass*3)**.5
 
     def angle(self, struc1, struc2, mass_wt_pw=False):
         """
@@ -847,7 +862,7 @@ class mol_calc:
 
     def distance_table(self, struc_list, mass_wt_pw, digits=4):
         """
-        Return a table with the RMSDs between the structures in struc_list.
+        Return a table with the distances between the structures in struc_list.
         <digits> specifies how many digits after the decimal point are printed out.
         """
         #print 'in distance_table'
@@ -856,3 +871,20 @@ class mol_calc:
         for i,struc1 in enumerate(struc_list[:-1]):
             tm.write_line([struc1.name] + [''] * i + [locale.format("%.*f", (digits, self.distance(struc1, struc2, mass_wt_pw=mass_wt_pw))) for struc2 in struc_list[i+1:]])
         return tm.return_table()
+
+    def RMSD_table(self, struc_list, mass_wt_pw):
+        """
+        Return a table with the RMSDs between the structures in struc_list.
+        """
+        sf = '%10s'
+        nf = '%10.6f'
+        retstr = sf%''
+        for struc in struc_list:
+            retstr += sf%struc.name[:9]
+        retstr += '\n'
+        for i,struc1 in enumerate(struc_list):
+            retstr += sf%struc1.name[:9]
+            for struc2 in struc_list:
+                retstr += nf%self.RMSD(struc1, struc2, mass_wt_pw)
+            retstr += '\n'
+        return retstr
