@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2
 
 print """
 version 1.0.0
@@ -170,8 +170,7 @@ class template:
         Write output files.
         """
         out_file = 'combined_struc.'+self.file_type #prefix+self.file_name
-        self.struc.make_coord_file(file_path=out_file, file_type=self.file_type)
-        print "created "+out_file
+        self.struc.make_coord_file(file_path=out_file, file_type=self.file_type, lvprt=1)
         print "check results for example with:"
         print "  pymol %s %s"%(self.file_name, out_file)
         
@@ -183,7 +182,6 @@ class template:
             print "check results for example with:"
             print "  molden %s"%(out_file)
 
-        
 class molecule:
     """
     Class for handling the separate molecules inserted.
