@@ -569,8 +569,9 @@ class structure:
             obconversion = openbabel.OBConversion()
             if not obconversion.SetOutFormat(ftype):
                 raise error_handler.MsgError("Format %s not supported by openbabel for output."%ftype)
-            if not obconversion.WriteFile(self.mol, file_path):
-                raise error_handler.MsgError("Error writing coordinate file %s"%file_path)
+#            if not obconversion.WriteFile(self.mol, file_path):
+#                raise error_handler.MsgError("Error writing coordinate file %s"%file_path)
+            obconversion.WriteFile(self.mol, file_path)
         if lvprt >= 1:
             print(("Coordinate file %s written."%file_path))
 
@@ -852,7 +853,7 @@ class mol_calc:
         #for atom in openbabel.OBMolAtomIter(def_struc.mol):
         for i in xrange(def_struc.mol.NumAtoms()):
             atom = def_struc.mol.GetAtom(i+1)
-            mass_list += 3*[atom.GetAtomicMass()**power]
+            mass_list += 3*[atom.GetExactMass()**power]
 
         ret_mat = numpy.zeros((len(mass_list), len(mass_list)), dtype=float)
         for i in xrange(len(mass_list)):

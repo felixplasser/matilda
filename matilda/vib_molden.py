@@ -68,8 +68,8 @@ class vib_molden:
         """
         Return the frequencies.
         """
-        return self.freqs
-    
+        return numpy.array(self.freqs)
+
     def ret_eff_masses(self, mol_calc, mass_wt_pw=1):
         """
         Returns a list with the effective masses for all the modes.
