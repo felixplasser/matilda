@@ -1,26 +1,26 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
-print """
+print("""
 version 1.0.0
 author: Felix Plasser (felix.plasser@univie.ac.at)
  University of Vienna, Institute for Theoretical Chemistry
  Waehringerstr. 17, 1090, Vienna, Austria
 
 usage: Insert one ore more structure files into a template and optionally combine the vibrations.
-"""
+""")
 # todo: more solid handling of sigma bond rotations
 try:
     import numpy
 except:
-    print "Error: third party package numpy not installed"
-    print "  please install: e.g. 'yum install numpy'"
+    print("Error: third party package numpy not installed")
+    print("  please install: e.g. 'yum install numpy'")
     raise
 
 try:
     from matilda import file_handler, struc_linalg, superposition, vib_molden
 except:
-    print "Error in importing module of this distribution"
-    print "check the PYTHONPATH environment variable"
+    print("Error in importing module of this distribution")
+    print("check the PYTHONPATH environment variable")
     raise
 
 class template:
@@ -40,15 +40,15 @@ class template:
             self.vib_mat = numpy.zeros([3*self.num_at,3*self.num_at])
             self.curr_vib = 0
         
-        print
-        print "Template %s read in"%file_name
-        print "Number of atoms: %i"%self.num_at
+        print()
+        print("Template %s read in"%file_name)
+        print("Number of atoms: %i"%self.num_at)
         
     def insert(self,ins,ky_file,ins_vib=None):
         """
         Insert a molecule into the structure.
         """
-        print """
+        print("""
         Enter indices of the atoms in the template structure corresponding to the
         indices of the molecule inserted.
         Enter '<index> [<weight>]', <weight> specifies a manual weighting factor. Default is the atomic mass.
@@ -56,7 +56,7 @@ class template:
         Enter 'x' to discard an atom of the inserted molecule.
         Enter '--' if all following atoms have no corresponding atom in the template.
         Enter 'xx' to discard all following atoms.
-        """
+        """)
     
         at_list_ref = []
         at_list_ins = []
@@ -86,14 +86,14 @@ class template:
                 
                 symb_ref = self.struc.ret_symbol(at_list_ref[-1])
                 symb_ins = ins.struc.ret_symbol(iat)                
-                print "  Symbols: %s %s"%(symb_ref,symb_ins)
+                print("  Symbols: %s %s"%(symb_ref,symb_ins))
                 if symb_ref != symb_ins:
-                    print "Warning: different atom types!"
+                    print("Warning: different atom types!")
                 # this has to be the inserted molecule !!
                 #mass_vect.append(self.struc.mol.GetAtom(iat).GetAtomicMass())
                 if len(inp_list) == 2:
                     weight = float(inp_list[1])
-                    print "  - Using manual weighting factor % .3f"%weight
+                    print("  - Using manual weighting factor % .3f"%weight)
                 else:
                     weight = ins.struc.mol.GetAtom(iat).GetAtomicMass()
                 mass_vect.append(weight)
@@ -103,13 +103,13 @@ class template:
 #        mass_vect = ins.struc.ret_mass_vector(power=1)
     
     # Perform the superposition
-        print 'mass_vect: ',mass_vect
+        print('mass_vect: ',mass_vect)
         sup = superposition.superposition()
         sup.superimpose(ref_points=ref_mat, mv_points=ins_mat, weights=mass_vect)
         
-        print
+        print()
         sup.print_all_info(prt_array=False)
-        print
+        print()
     
         ins_mat = ins_mat - sup.ret_mv_av()
         ins_mat = numpy.dot(ins_mat, sup.ret_rotation_matrix().transpose())
@@ -138,32 +138,26 @@ class template:
             not_list_ins = []
             
             if self.vib:
-                print "Cannot combine vibrations and add atoms at the same time!"
-                print "Please perform in two steps!"
-                print "Only combining geometries now ...\n"
+                print("Cannot combine vibrations and add atoms at the same time!")
+                print("Please perform in two steps!")
+                print("Only combining geometries now ...\n")
                 self.vib = False
         
         if self.vib:
-            print "Inserting vibrations";
+            print("Inserting vibrations")
             vib_m = vib_molden.vib_molden()
             vib_m.read_molden_file(file_path=ins_vib)
             
             for vib in vib_m.vibs:
-                #print vib.vector_list
                 vec_array_rot = numpy.dot(vib.vector_list, sup.ret_rotation_matrix().transpose())
-                #print vec_list_rot
                 
                 for iat,iref in enumerate(at_list_ref):
                     for coor in xrange(3):
                         self.vib_mat[self.curr_vib,3*(iref-1)+coor]=vec_array_rot[iat,coor]
                         
-                #print self.vib_mat[self.curr_vib]
                 self.freqs[self.curr_vib] = vib.frequency
                 self.curr_vib += 1
             
-            #print self.curr_vib
-            #print self.vib_mat
-            #print numpy.linalg.norm(self.vib_mat)
             
     def write_output(self,prefix='INS_'):
         """
@@ -171,16 +165,16 @@ class template:
         """
         out_file = 'combined_struc.'+self.file_type #prefix+self.file_name
         self.struc.make_coord_file(file_path=out_file, file_type=self.file_type, lvprt=1)
-        print "check results for example with:"
-        print "  pymol %s %s"%(self.file_name, out_file)
+        print("check results for example with:")
+        print("  pymol %s %s"%(self.file_name, out_file))
         
         if self.vib:
             out_file = 'combined_vib.mld' #prefix+self.file_name+'_vib.mld'
             vib_molden.make_molden_file(struc=self.struc, freqs=self.freqs, vibs=self.vib_mat, out_file=out_file, title='combined vibrations', num_at=None)
-            print
-            print "created "+out_file
-            print "check results for example with:"
-            print "  molden %s"%(out_file)
+            print()
+            print("created "+out_file)
+            print("check results for example with:")
+            print("  molden %s"%(out_file))
 
 class molecule:
     """
@@ -191,9 +185,9 @@ class molecule:
         self.struc.read_file(file_path=file_name, file_type=file_type)
         self.num_at = self.struc.ret_num_at()
         
-        print
-        print "%s read in"%file_name
-        print "Number of atoms: %i"%self.num_at
+        print()
+        print("%s read in"%file_name)
+        print("Number of atoms: %i"%self.num_at)
 
 
 if __name__=='__main__':

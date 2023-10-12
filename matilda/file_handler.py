@@ -322,7 +322,7 @@ def def_input(text, default=''):
     ask_str += ':'
     
     print(ask_str)
-    tmp = raw_input('')
+    tmp = input('')
     if tmp == '':
         tmp = default
         
@@ -338,4 +338,3 @@ if __name__ == '__main__':
     print(cm.return_csv())
 
     #cm.write_to_file('test.txt')
-
