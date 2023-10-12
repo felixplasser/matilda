@@ -1,17 +1,16 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """
 version 1.0.0
 author: Felix Plasser
 usage: Print out a table with distances between structures. They are superimposed onto the first structure.
 """
-#!/usr/bin/python
 import os, sys
 from matilda import struc_linalg
 
 if len(sys.argv) < 2:
-   print 'At least one argument required.'
-   print 'Syntax: python distances.py <struc1> <struc2> ... [-t<type>] [-mwp<mass_weight_power>] [-fit<fitting>] [-dig<digits>]'
+   print('At least one argument required.')
+   print('Syntax: python distances.py <struc1> <struc2> ... [-t<type>] [-mwp<mass_weight_power>] [-fit<fitting>] [-dig<digits>]')
    sys.exit()
    
 # defaults
@@ -43,14 +42,14 @@ for i,file in enumerate(files[1:]):
     struc.read_file(file_path=file, file_type=file_type)
     # superimpose the structures
     if fitting == 1:
-        print '- Superimposing the structures'
+        print('- Superimposing the structures')
         out_strucs += [struc.ret_superimposed_structure(struc0, mass_wt_pw=mass_wt_pw)]
     else:
         out_strucs += [struc]
 
 mc = struc_linalg.mol_calc(def_file_path=files[0], file_type=file_type)
 
-print 'Distances between structures'
-print mc.distance_table(out_strucs, mass_wt_pw=mass_wt_pw, digits=digits)
+print('Distances between structures')
+print(mc.distance_table(out_strucs, mass_wt_pw=mass_wt_pw, digits=digits))
 
 

@@ -104,8 +104,8 @@ def get_file_keys(file_name, equ='=', sep=[' ',',']):
             tmp = line_to_words(line,sep=sep+[equ])
             out_dict[tmp[0]]=tmp[1:]
         elif line.count(equ) > 1:
-            print "line could not be parsed because there are more than one '%s'"%equ
-            print line
+            print("line could not be parsed because there are more than one '%s'"%equ)
+            print(line)
     
     fil.close()
     return out_dict
@@ -128,11 +128,11 @@ def list_print(list,format,ncols=8):
         outstr+=format%item
 
         if i == ncols:
-            print outstr
+            print(outstr)
             i = 0
             outstr = ''
 
-    print outstr
+    print(outstr)
 
 class table_maker:
     """
@@ -195,7 +195,7 @@ class table_maker:
         """
         Print the formatted line.
         """
-        print self.ret_line(words)
+        print(self.ret_line(words))
         
     def make_line(self, words):
         """
@@ -321,7 +321,7 @@ def def_input(text, default=''):
     if default != '': ask_str += ' [%s]'%default
     ask_str += ':'
     
-    print ask_str
+    print(ask_str)
     tmp = raw_input('')
     if tmp == '':
         tmp = default
@@ -335,7 +335,7 @@ if __name__ == '__main__':
     cm.write_word('r')
     cm.new_line()
     cm.write_word('t')
-    print cm.return_csv()
+    print(cm.return_csv())
 
     #cm.write_to_file('test.txt')
 

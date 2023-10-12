@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """
 version 1.0
@@ -9,14 +9,14 @@ usage: Print out the value of a specified internal coordinate.
 import os, sys, locale
 import numpy
 #import openbabel
-import pybel
+from openbabel import pybel
 from matilda import file_handler, struc_linalg
 
 def print_info():
-    print 'Usage example: int_coor_multi.py dist 4 5 struc.xyz'
-    print 'Supported internal coordinates: dist, bend, tors'
-    print 'Arguments: -type <xyz, tmol, mol ...>'
-    print '   -dig <number of digits in print out>'
+    print('Usage example: int_coor_multi.py dist 4 5 struc.xyz')
+    print('Supported internal coordinates: dist, bend, tors')
+    print('Arguments: -type <xyz, tmol, mol ...>')
+    print('   -dig <number of digits in print out>')
     sys.exit()
 
 if len(sys.argv) < 5:
@@ -46,8 +46,8 @@ while len(args) > 0:
     elif arg == '-h':
         print_info()
     elif arg[0] == '-':
-        print 'Unsupported option: ' + arg
-        print 'int_coor.py -h for more information'
+        print('Unsupported option: ' + arg)
+        print('int_coor.py -h for more information')
         sys.exit()
     else:
         files += [arg]

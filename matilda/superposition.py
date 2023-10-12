@@ -8,7 +8,7 @@ import sys
 try:
     import numpy
 except:
-    print 'numpy not installed'
+    print('numpy not installed')
     raise
 
 class superposition:
@@ -32,7 +32,7 @@ class superposition:
         mv_c = self.mv_points - self.mv_av
         
         Ak_T_list = [] # list with all the Ak        
-        for i in xrange(len(ref_c)):
+        for i in range(len(ref_c)):
             Ak = self.A(ref_c[i]+mv_c[i],ref_c[i]-mv_c[i])
             Ak_T_list += [numpy.dot(Ak.transpose(),Ak)] # list of Ak's multiplied with transposed matrix
         Ak_T_array = numpy.array(Ak_T_list, float)
@@ -41,7 +41,7 @@ class superposition:
         #print Ak_T_array
         
         B = self.average(Ak_T_array)
-        print 'B', B
+        print('B', B)
         
         self.evals, temp_evecs = numpy.linalg.eig(B)
         evecs = temp_evecs.transpose() # eigenvectors are initially written into columns
@@ -88,20 +88,20 @@ class superposition:
         """
         Print out all information about the superposition
         """
-        print " *** Superposition performed ***"
+        print(" *** Superposition performed ***")
         if prt_array:
-            print "Center of mass of reference:"
-            print self.ret_ref_av()
+            print("Center of mass of reference:")
+            print(self.ret_ref_av())
         if prt_array:
-            print "Center of mass of moved structure:"
-            print self.ret_mv_av()
-        print "eigenvalues", self.evals
-        print "Distance between centers of mass (A): %7.3f"%self.ret_cent_dist()
+            print("Center of mass of moved structure:")
+            print(self.ret_mv_av())
+        print("eigenvalues", self.evals)
+        print("Distance between centers of mass (A): %7.3f"%self.ret_cent_dist())
         if prt_array:
-            print "Rotation matrix:"
-            print self.ret_rotation_matrix()
-        print "Rotation angle (degree): %7.3f"%(self.ret_rotation_angle()*180/numpy.pi)
-        print "RMSD after superposition (A): %10.6f"%self.ret_rmsd()
+            print("Rotation matrix:")
+            print(self.ret_rotation_matrix())
+        print("Rotation angle (degree): %7.3f"%(self.ret_rotation_angle()*180/numpy.pi))
+        print("RMSD after superposition (A): %10.6f"%self.ret_rmsd())
     
     def ret_rmsd(self):
         """
@@ -131,7 +131,7 @@ class superposition:
         Return the distance between the centers of the structures in Angstrom.
         """
         tmp = 0.
-        for i in xrange(3):
+        for i in range(3):
             tmp += (self.ref_av[i] - self.mv_av[i])**2
             
         return numpy.sqrt(tmp)

@@ -340,7 +340,7 @@ class structure:
 
         trans_mat = numpy.zeros((num_at, num_at), float) # matrix multiplication with this matrix leads to the structure with permutated atom numbering
         for cycle in perm_list:
-            for i in xrange(len(cycle)-1):
+            for i in range(len(cycle)-1):
                 trans_mat[cycle[i]-1, cycle[i+1]-1] = 1
             trans_mat[cycle[len(cycle)-1]-1, cycle[0]-1] = 1
 
@@ -851,12 +851,12 @@ class mol_calc:
         def_struc.read_file(self.def_file_path, self.file_type) # mass weighing in this case not needed
         mass_list = []
         #for atom in openbabel.OBMolAtomIter(def_struc.mol):
-        for i in xrange(def_struc.mol.NumAtoms()):
+        for i in range(def_struc.mol.NumAtoms()):
             atom = def_struc.mol.GetAtom(i+1)
             mass_list += 3*[atom.GetExactMass()**power]
 
         ret_mat = numpy.zeros((len(mass_list), len(mass_list)), dtype=float)
-        for i in xrange(len(mass_list)):
+        for i in range(len(mass_list)):
             ret_mat[i,i]=mass_list[i]
 
         return ret_mat

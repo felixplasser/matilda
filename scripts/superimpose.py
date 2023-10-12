@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """
 version 1.0.0
@@ -12,8 +12,8 @@ import os, sys
 from matilda import struc_linalg
 
 if len(sys.argv) < 3:
-   print 'At least two arguments required.'
-   print 'Syntax: python superimpose.py <ref_struc> <struc1> <struc2> ... [-t<type=xyz>] [-mwp<mass_weight_power=1>]'
+   print('At least two arguments required.')
+   print('Syntax: python superimpose.py <ref_struc> <struc1> <struc2> ... [-t<type=xyz>] [-mwp<mass_weight_power=1>]')
    sys.exit()
 
 # defaults
@@ -48,6 +48,6 @@ for i,super_file in enumerate(super_files):
     strucs[-1].make_coord_file('SI_' + super_file,file_type=file_type)
 
 # to follow the effect of the superposition, a matrix with the distances can be printed out
-print 'The structures have been aligned. New files SI_*** were created'
-print 'RMSDs (Ang per atom) between structures'
-print mc.RMSD_table([ref]+strucs, mass_wt_pw=mass_wt_pw)
+print('The structures have been aligned. New files SI_*** were created')
+print('RMSDs (Ang per atom) between structures')
+print(mc.RMSD_table([ref]+strucs, mass_wt_pw=mass_wt_pw))
