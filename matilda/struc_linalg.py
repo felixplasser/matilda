@@ -9,7 +9,7 @@ import os, shutil, locale
 import numpy
 obabel_avail = True
 try:
-    import openbabel
+    from openbabel import openbabel
 except ImportError:
     obabel_avail = False
     print(" *** Warning: python-openbabel not found! ***")
@@ -349,6 +349,16 @@ class structure:
         ret_struc = structure(name=name)
         ret_struc.read_file_3xN_matrix(self.file_path, self.file_type, new_vec)
         return ret_struc
+
+    def ret_pos(self, i):
+        """
+        Return the position of atom i.
+        """
+        OBAtom_i = self.mol.GetAtom(i)
+
+        pos_i = numpy.array([OBAtom_i.x(), OBAtom_i.y(), OBAtom_i.z()])
+
+        return pos_i
 
     def ret_bond_length(self, i, j):
         """
