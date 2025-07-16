@@ -56,9 +56,9 @@ if __name__=='__main__':
         raise ValueError("Number of top and bottom indices should be equal.")
     elif nb_inds == nt_inds and nb_inds in [3,4]:
         if nb_inds == 4:
-            print("The Structure is square antiprism")
+            print("Analysing twisting between squares")
         elif nb_inds == 3:
-            print("The Structure is triangular antiprism")
+            print("Analysing twisting between triangles")
 
         # Find the average position of the bottom square
         pos = []
