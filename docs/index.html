@@ -1,1 +1,194 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><html><head>	<title>struc manip manual</title></head><body><h1>Molecular Structure Manipulation Tools</h1>Scripts for manipulation, comparison and conversion of molecular structures.<h2>Installation</h2><ul>	<li>Extract the compressed file.	<br>'<code>tar -xf struc_manip.tar.gz</code>'</li>	<li>Check for the packages which are required by some of the scripts in the distribution.	<br>They may be either found as part of the UNIX distribution (try <code>yum install &lt;package&gt;</code>) or they can be downloaded from the URLs specified.    <ul>		<li><a href="http://www.python.org/">Python programming language</a></li>		<li><a href="http://numpy.scipy.org/">numpy</a> python package</li>		<li><a href="http://openbabel.org/wiki/Python">openbabel-python</a> package (typically distributed as part of openbabel)</li>	</ul>	<li>Set up for quick access	<br><i>either</i>	<ul>	<li>Add the contained <code>lib</code> directory to you <code>PYTHONPATH</code> environment variable	<br>(e.g. '<code>setenv PYTHONPATH &lt;PATH&gt;/lib</code>' in the .cshrc)	</li>	<li>add the <code>scripts</code> directory to your path	</ul>		<i>or</i>	<br>set up the <code>&lt;PATH&gt;/struc_caller</code> routine by modifying the path inside	</li>	</li></ul><h2>Description</h2><i>Syntax</i>: '<b>[&lt;PATH&gt;/struc_caller] &lt;script_name&gt;.py &lt;arguments&gt;</b>'<br>for a short instruction: call '<b>&lt;script_name&gt;.py</b>' <i>without any arguments</i><br>File handling is based upon the <a href='http://openbabel.org/wiki/Main_Page'>Open Babel</a> conversion tools. Therefore all file types available in openbabel can be accessed (try <b>babel -H</b>). Additionally there is support for Columbus/Newton-X format ("col") and Tinker format ("txyz2").<h3>superimpose.py</h3>Superposition of different structures of one molecule using a quaternion fit [1].<br><br><i>Syntax</i>: '<b>superimpose.py &lt;ref_struc&gt; &lt;struc1&gt; &lt;struc2&gt; ... -t&lt;file_type&gt;</b>'<br>e.g. <code>superimpose.py ref.xyz struc1.xyz struc2.xyz -txyz</code><br><br>Structures &lt;struc1&gt;, &lt;struc2&gt;, ... are superimposed onto &lt;ref_struc&gt;.&lt;file_type&gt; is a file type supported by openbabel (type 'babel -help' for a complete list).<br>Superposition is done through aligning the centers of mass for translation, and a quaternion fit for rotations.Only proper rotations are considered. <br>The numbering of the atoms is crucial. Renumbering is not implemented in this script. It could be done manually or through python programming with usage of struc_linalg.py.<h3>babel.py</h3>File format conversion utility, based on and similar to the <code><a href='http://openbabel.org/'>babel</a></code> program but with additional support for Columbus/Newton-X ("col") and Tinker ("txyz2") formats.<br><br><i>Syntax</i>: '<b>babel.py &lt;in_format&gt; &lt;in_file&gt; &lt;out_format&gt; &lt;out_file&gt;</b>'<br>e.g. <code>babel.py tmol coord col geom</code> (<i>to convert between Turbomole and Columbus formats</i>)<h3>combine_vib.py</h3>Insert molecules into a larger template file and optionally combine the molecular vibrations.<br><br><i>Syntax</i>: '<b>combine_vib.py</b>'<br><br><i>Requirements</i>: Structure files for the template and the molecules to insert. Normal modes (if required) are given as molden format files.<br><br><i>Execution</i>: Follow the explanations on the screen. The non-trivial task is to identify the corresponding atoms between the structures. For this it is suggested to open both molecules at the same time in a molecular structure viewing program to compare the indices. Note that the program asks for the indices of the atoms in the (larger) template file corresponding to indices in the molecule inserted (putting the indices in the opposite order will give a wrong result).<br><br><i>Output</i>:<br><b>combined_struc.xyz</b>: Structure file with inserted structures.<br><b>combined_vib.mld</b>: Molden file with combined normal modes.<h3>arc2pot.py</h3>Conversion utility from a Tinker archive to a set of point charges in Columbus format. The structure can be separated into QM and MM regions and the functionality for adding link atoms is supplied. The script can be used to extract several frames in order to perform a calculation in an averaged potential. The point charges are created in Columbus format as <b>potential.xyz</b> (Bohr). Additionally the geometry of the core region for the first frame is written to <b>geom.xyz</b> in standard xyz format (Angstrom).<br><br>Syntax: '<b>arc2pot.py &lt;tinker-arc&gt; &lt;prm-file&gt;</b>'<br><br>&lt;tinker-arc&gt; is the Tinker archive with the structures. Point charges for the atom types are parsed from &lt;prm-file&gt;.<br><br>The remaining input is parsed from a file <b>arc2pot.in</b> with the following information. <i>Only values with no specified default have to be entered.</i><br><br><table border=1><tr><td><b>Keyword</b></td><td><b>Default</b></td><td><b>Description</b></td></tr><tr><td>at_list</td><td></td><td>Specification of the atoms which shall be converted to point charges (i.e. the MM region). Use <code>to(&lt;start&gt;,&lt;end&gt;)</code> to specify ranges.</td></tr><tr><td>frames</td><td></td><td>Specification of the dynamics frames to use for conversions.</td></tr><tr><td>link_atom</td><td><i>empty</i></td><td>Use <code>link_atom[&lt;QM_atom&gt;]=[&lt;MM_atom&gt;,&lt;ratio&gt;,&lt;symbol&gt;]</code> to introduce a link atom with atomic symbol &lt;symbol&gt; into <b>geom.xyz</b>. This link atom is placed on the connecting line between the QM and MM atoms at &lt;ratio&gt; times their distance away from the QM atom. Per default the point charge of the MM_atom is set to zero use <code>zero_scatter</code> for charge redistribution.</td></tr><tr><td>zero_scatter</td><td><i>empty</i></td><td>Specify charges to redistribute. Point charges of atoms in &lt;zero_<i>i</i>&gt; are set to zero and their summed up charge is distributed over &lt;scatter_<i>i</i>&gt;. If an atom is specified in &lt;zero_<i>i</i>&gt; which is not in &lt;at_list&gt;, then its charge is added to the scatter charge. If an empty list <code>[]</code> is specified for &lt;scatter_<i>i</i>&gt;, then the charges are discarded.<br>It is specified as a nested list, i.e. <code>zero_scatter=[ [&lt;zero_0&gt;,&lt;scatter_0&gt;], [&lt;zero_1&gt;,&lt;scatter_1&gt;], ...]</code>, where &lt;zero_<i>i</i>&gt; and &lt;scatter_<i>i</i>&gt; are each lists as well. Typical choices for &lt;zero_<i>i</i>&gt; are either just the MM link atom, or both the QM region and the MM link atom. A typical choice for &lt;scatter_<i>i</i>&gt; would consist of all the atoms bonded to the MM link atom.</td></tr><tr><td>new_charge</td><td><i>empty</i></td><td>Manual modification of a charge. Use <code>new_charge[&lt;index&gt;]=&lt;charge&gt;</code> to modify the charge of the atom indexed with &lt;index&gt; in the output <b>potential.xyz</b> file. <code>new_charge</code> is applied before <code>zero_scatter</code>, in case they should be used in connection.</td></tr><tr><td>sep</td><td>False</td><td>If this is set to <code>True</code> then the information is read in from separate input files.</td></tr><tr><td>scale</td><td>1.</td><td>Scaling factor of the charges. The default 1. means that charges are divided by the number of frames. A value different from 1. would only be needed in special cases (for example when a symmetrization is performed later).</td></tr><tr><td>lvprt</td><td>0</td><td>Print level for debug and verification purposes.</td></tr></table><br>- Please use square brackets to enclose lists and <code>to(&lt;start&gt;,&lt;end&gt;)</code> for specifying ranges. Use "+=" when specifying <code>zero_scatter</code><br><br><i>Example</i> <b>arc2pot.in</b><pre><code>at_list = [1,3,5] + to(20,9230) + [9260,9262]frames = to(1,50)# link atom, where only the charge of the MM link atom is movedlink_atom[9263] = [9262, 0.68, 'H']zero_scatter+=[[ [9262], [9251,9253,9258] ]]# charge consistent link atom, considering the partial charge of the whole QM region as well as the MM link atomlink_atom[9231] = [9230, 0.69, 'H']zero_scatter+=[[ to(9230,9244), [9219,9221,9226] ]]</code></pre><i>at_list here contains the indices 1, 3, 5, 20-9230, 9260, 9262.</i><br><br><i>Formally the file is parsed as Python code (with an additional </i>to(s,e)=range(s,e+1)<i> function). Any other Python syntax may be used for constructing the </i>at_list<i>, </i>frames<i>, and </i>zero_scatter<i> lists and the </i>link_atom<i> and </i>new_charge<i> dictionaries.</i><h3>pot_reduce.py</h3>Reduce a file <b>pot_old.xyz</b> (Bohr) of point charges in Columbus format by combining close lying charges. A dynamic threshold is employed with the goal to describe areas close to the region of interest very accurately and to preserve the large scale electrostatic moments of a significantly larger system. Two point charges <i>i</i> and <i>j</i> of the same sign are combined into their center of charge if the distance <i>d<sub>ij</sub></i> between them is<br><img src="http://latex.univie.ac.at/?d_{ij}\leq C\left(\frac{r_i+r_j}{2}-r_0\right)"></img><br>where <i>r<sub>i</sub></i> and <i>r<sub>j</sub></i> are their respective distances to the origin, <i>r</i><sub>0</sub> should approximately define the molecular cavity, and <i>C</i> is a global scaling constant.<br><br>Within the <a href="http://www.univie.ac.at/columbus/">Columbus</a> program package, it is also possible to restore gradients for all of the original point charges. It is therefore possible to compute direct QM/MM dynamics in this fashion.<br><br>Syntax: '<b>pot_reduce.py [&lt;mode&gt;]</b>'<br><br>If &lt;mode&gt; is left out or <code>mode=reduce</code>, a reduction is performed. If <code>mode=expand</code>, a gradient computed in the reduced set of point charges is expanded to the whole set of input charges. This expansion is implemented within the Columbus program package. <br><br>The input is parsed from a file <b>pot_reduce.in</b> with the following information. <i>Only values with no specified default have to be entered.</i><br><br><table border=1><tr><td><b>Keyword</b></td><td><b>Default</b></td><td><b>Description</b></td></tr><tr><td>C</td><td>0.0</td><td>Scaling threshold. The lower this threshold is, the more point charges are retained. Suggested values: 0.01&le;<i>C</i>&le;0.2</td></tr><tr><td>r0</td><td>0.0</td><td>Radius (Bohr) of the molecular cavity.</td></tr><tr><td>orig</td><td>[0.,0.,0.]</td><td>Specify the origin in Bohr radii. <i>r<sub>i</sub></i>, <i>r<sub>j</sub></i> and <i>r</i><sub>0</sub> are taken relative to this. Typically the origin should lie at the center of mass of the QM region.</td></tr><tr><td>scale</td><td>[1.,1.,1.]</td><td>Scaling factor to allow specifying an elliptical cavity. Internally all quantities are rescaled by this factor. If for example the system extends 12 Bohr in the x-direction, 6 Bohr in the y-direction, and 4 Bohr in the z direction. You may specify <code>r0=4.; scale=[3.,1.5,1.]</code></td></tr><tr><td>formout</td><td>'col'</td><td>Output format. 'col' will produce <b>potential.xyz</b> in Columbus format, 'tmol' <b>pointcharges</b> in Turbomole format.</td></tr></table><br>- Please use square brackets to enclose lists and <code>to(&lt;start&gt;,&lt;end&gt;)</code> for specifying ranges.<br><br><i>Example</i> <b>pot_reduce.in</b><pre><code>C=0.1r0=0.orig=[3.0,-4.7,5.0]formout='col'</code></pre><h3>interpolate.py</h3>Linear interpolation between two cartesian molecular structures of the same molecule.<br><br>Syntax: '<b>interpolate.py &lt;start_struc&gt; &lt;end_struc&gt; &lt;out_dir&gt; &lt;steps_nr&gt; &lt;file_type&gt;</b>'<br>e.g. <code>interpolate.py start.xyz end.xyz interpolate 10 xyz</code><br><br>&lt;end_stuc&gt; is superimposed onto &lt;start_struc&gt;, then &lt;steps_nr&gt; intermediate structures are constructed andput into the directory &lt;out_dir&gt;. <br>Linear interpolation is a clearly defined way of finding intermediate structures. But well choseninternal coordinates are probably more physical, especially when rotations play an important role.<h3>distances.py</h3>Computation of the distances (i.e. norm of the difference vector, RMSD) between a set of structures of one molecule.<br><br>Syntax: '<b>distances.py &lt;struc1&gt; &lt;struc2&gt; ... [-t&lt;file_type&gt;] [-mwp&lt;mass_weight_power&gt;] [-fit&lt;fitting&gt;]</b>'<br>e.g. <code>distances.py struc1.xyz struc2.xyz -txyz</code><br><br>A table with the distances between the specified structures is printed out.<br>&lt;file_type&gt; is a file type supported by openbabel (type 'babel -help' for a complete list).<br>The default for &lt;mass_weight_power&gt; is -mwp1 which leads to regular mass weighting (i.e. &Aring;<sup>2</sup>amu for the squared norm and &Aring;amu<sup>1/2</sup> for the distance); -mwp0 means cartesian coordinates.<br>-fit1 which is the default specifies that structures are initially fitted onto the first structure, -fit0 leaves the structures unchanged.<h3>int_coor.py, int_coor_multi.py</h3>Print out values of internal coordinates.<br><br>Syntax: '<b>int_coor.py &lt;coors&gt; &lt;file1&gt; [&lt;file2&gt; ...]</b>'<br>&lt;coors&gt; contains the types of internal coordinates (dist, bend, tors) considered and the atoms involved.<br><br>Example: <code>int_coor.py dist 4 5 bend 1 2 3 tors 5 6 7 8 struc.xyz struc2.xyz</code><br><br><code>int_coor_multi.py</code> may be used to analyze a file containing multiple structures.<h3>renumber_xyz.py</h3>Renumbering of an xyz file.<br><br>Syntax: '<b>renumber_xyz.py &lt;in_file&gt; &lt;renumber_file&gt; &lt;out_file&gt;</b>'<br>e.g. renumber_xyz.py struc.xyz renumber.txt struc_renumber.xyz<br><br>Renumber the xyz-file &lt;in_file&gt;. &lt;renumber_file&gt; contains the old numbers of the atoms in the new order (if optionally someof the atoms are left out, they are added at the end). The result is written into &lt;out_file&gt;.<h2>Python subroutine libraries</h2>The underlying python subroutine libraries can be used as a basis for more complex tasks. For more information, look at the documentation included in the python files (either in the source code or with the python 'help(...)' command).<ul><li>struc_linalg.py - package for performing linear algebra operations on structures</li><li>superposition.py - superposition of molecules with a quaternion fit [1]</li><li>file_handler.py - basic file operations</li></ul>[1] Karney, C. F. F. Journal of Molecular Graphics & Modelling 2007, 25, 595.<h2>Contact</h2>Felix Plasser (email: felix.plasser "at" univie.ac.at)<br>University of Vienna, Institute for Theoretical Chemistry<br>W&auml;hringerstr. 17, 1090, Vienna, Austria</body></html>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<title>struc manip manual</title>
+</head>
+
+<body>
+<h1>MATILDA</h1>
+Scripts for manipulation, comparison and conversion of molecular structures.
+<h2>Installation</h2>
+<ul>
+	<li>Extract the compressed file.
+	<br>'<code>tar -xf struc_manip.tar.gz</code>'</li>
+	<li>Check for the packages which are required by some of the scripts in the distribution.
+	<br>They may be either found as part of the UNIX distribution (try <code>yum install &lt;package&gt;</code>) or they can be downloaded from the URLs specified.
+    <ul>
+		<li><a href="http://www.python.org/">Python programming language</a></li>
+		<li><a href="http://numpy.scipy.org/">numpy</a> python package</li>
+		<li><a href="http://openbabel.org/wiki/Python">openbabel-python</a> package (typically distributed as part of openbabel)</li>
+	</ul>
+	<li>Set up for quick access
+	<br><i>either</i>
+	<ul>
+	<li>Add the contained <code>lib</code> directory to you <code>PYTHONPATH</code> environment variable
+	<br>(e.g. '<code>setenv PYTHONPATH &lt;PATH&gt;/lib</code>' in the .cshrc)
+	</li>
+	<li>add the <code>scripts</code> directory to your path
+	</ul>	
+	<i>or</i>
+	<br>set up the <code>&lt;PATH&gt;/struc_caller</code> routine by modifying the path inside
+	</li>
+	
+</li>
+</ul>
+
+<h2>Description</h2>
+<i>Syntax</i>: '<b>[&lt;PATH&gt;/struc_caller] &lt;script_name&gt;.py &lt;arguments&gt;</b>'
+<br>for a short instruction: call '<b>&lt;script_name&gt;.py</b>' <i>without any arguments</i>
+<br>File handling is based upon the <a href='http://openbabel.org/wiki/Main_Page'>Open Babel</a> conversion tools. Therefore all file types available in openbabel can be accessed (try <b>babel -H</b>). Additionally there is support for Columbus/Newton-X format ("col") and Tinker format ("txyz2").
+
+<h3>superimpose.py</h3>
+Superposition of different structures of one molecule using a quaternion fit [1].
+<br><br><i>Syntax</i>: '<b>superimpose.py &lt;ref_struc&gt; &lt;struc1&gt; &lt;struc2&gt; ... -t&lt;file_type&gt;</b>'
+<br>e.g. <code>superimpose.py ref.xyz struc1.xyz struc2.xyz -txyz</code>
+<br><br>Structures &lt;struc1&gt;, &lt;struc2&gt;, ... are superimposed onto &lt;ref_struc&gt;.
+&lt;file_type&gt; is a file type supported by openbabel (type 'babel -help' for a complete list).
+<br>Superposition is done through aligning the centers of mass for translation, and a quaternion fit for rotations.
+Only proper rotations are considered. 
+<br>The numbering of the atoms is crucial. Renumbering is not implemented in this script. It could be done manually or through python programming with usage of struc_linalg.py.
+
+<h3>babel.py</h3>
+File format conversion utility, based on and similar to the <code><a href='http://openbabel.org/'>babel</a></code> program but with additional support for Columbus/Newton-X ("col") and Tinker ("txyz2") formats.
+<br><br><i>Syntax</i>: '<b>babel.py &lt;in_format&gt; &lt;in_file&gt; &lt;out_format&gt; &lt;out_file&gt;</b>'
+<br>e.g. <code>babel.py tmol coord col geom</code> (<i>to convert between Turbomole and Columbus formats</i>)
+
+<h3>combine_vib.py</h3>
+Insert molecules into a larger template file and optionally combine the molecular vibrations.
+<br><br><i>Syntax</i>: '<b>combine_vib.py</b>'
+<br><br><i>Requirements</i>: Structure files for the template and the molecules to insert. Normal modes (if required) are given as molden format files.
+<br><br><i>Execution</i>: Follow the explanations on the screen. The non-trivial task is to identify the corresponding atoms between the structures. For this it is suggested to open both molecules at the same time in a molecular structure viewing program to compare the indices. Note that the program asks for the indices of the atoms in the (larger) template file corresponding to indices in the molecule inserted (putting the indices in the opposite order will give a wrong result).
+<br><br><i>Output</i>:
+<br><b>combined_struc.xyz</b>: Structure file with inserted structures.
+<br><b>combined_vib.mld</b>: Molden file with combined normal modes.
+
+<h3>arc2pot.py</h3>
+Conversion utility from a Tinker archive to a set of point charges in Columbus format. The structure can be separated into QM and MM regions and the functionality for adding link atoms is supplied. The script can be used to extract several frames in order to perform a calculation in an averaged potential. The point charges are created in Columbus format as <b>potential.xyz</b> (Bohr). Additionally the geometry of the core region for the first frame is written to <b>geom.xyz</b> in standard xyz format (Angstrom).
+<br><br>Syntax: '<b>arc2pot.py &lt;tinker-arc&gt; &lt;prm-file&gt;</b>'
+<br><br>&lt;tinker-arc&gt; is the Tinker archive with the structures. Point charges for the atom types are parsed from &lt;prm-file&gt;.
+<br><br>The remaining input is parsed from a file <b>arc2pot.in</b> with the following information. <i>Only values with no specified default have to be entered.</i>
+<br><br><table border=1>
+<tr>
+<td><b>Keyword</b></td><td><b>Default</b></td><td><b>Description</b></td>
+</tr>
+<tr>
+<td>at_list</td><td></td><td>Specification of the atoms which shall be converted to point charges (i.e. the MM region). Use <code>to(&lt;start&gt;,&lt;end&gt;)</code> to specify ranges.</td>
+</tr><tr>
+<td>frames</td><td></td><td>Specification of the dynamics frames to use for conversions.</td>
+</tr><tr>
+<td>link_atom</td><td><i>empty</i></td><td>Use <code>link_atom[&lt;QM_atom&gt;]=[&lt;MM_atom&gt;,&lt;ratio&gt;,&lt;symbol&gt;]</code> to introduce a link atom with atomic symbol &lt;symbol&gt; into <b>geom.xyz</b>. This link atom is placed on the connecting line between the QM and MM atoms at &lt;ratio&gt; times their distance away from the QM atom. Per default the point charge of the MM_atom is set to zero use <code>zero_scatter</code> for charge redistribution.</td>
+</tr><tr>
+<td>zero_scatter</td><td><i>empty</i></td><td>Specify charges to redistribute. Point charges of atoms in &lt;zero_<i>i</i>&gt; are set to zero and their summed up charge is distributed over &lt;scatter_<i>i</i>&gt;. If an atom is specified in &lt;zero_<i>i</i>&gt; which is not in &lt;at_list&gt;, then its charge is added to the scatter charge. If an empty list <code>[]</code> is specified for &lt;scatter_<i>i</i>&gt;, then the charges are discarded.
+<br>It is specified as a nested list, i.e. <code>zero_scatter=[ [&lt;zero_0&gt;,&lt;scatter_0&gt;], [&lt;zero_1&gt;,&lt;scatter_1&gt;], ...]</code>, where &lt;zero_<i>i</i>&gt; and &lt;scatter_<i>i</i>&gt; are each lists as well. Typical choices for &lt;zero_<i>i</i>&gt; are either just the MM link atom, or both the QM region and the MM link atom. A typical choice for &lt;scatter_<i>i</i>&gt; would consist of all the atoms bonded to the MM link atom.</td>
+</tr><tr>
+<td>new_charge</td><td><i>empty</i></td><td>Manual modification of a charge. Use <code>new_charge[&lt;index&gt;]=&lt;charge&gt;</code> to modify the charge of the atom indexed with &lt;index&gt; in the output <b>potential.xyz</b> file. <code>new_charge</code> is applied before <code>zero_scatter</code>, in case they should be used in connection.</td>
+</tr><tr>
+<td>sep</td><td>False</td><td>If this is set to <code>True</code> then the information is read in from separate input files.</td>
+</tr><tr>
+<td>scale</td><td>1.</td><td>Scaling factor of the charges. The default 1. means that charges are divided by the number of frames. A value different from 1. would only be needed in special cases (for example when a symmetrization is performed later).</td>
+</tr><tr>
+<td>lvprt</td><td>0</td><td>Print level for debug and verification purposes.</td>
+</tr>
+</table>
+
+<br>- Please use square brackets to enclose lists and <code>to(&lt;start&gt;,&lt;end&gt;)</code> for specifying ranges. Use "+=" when specifying <code>zero_scatter</code>
+<br><br><i>Example</i> <b>arc2pot.in</b>
+<pre><code>at_list = [1,3,5] + to(20,9230) + [9260,9262]
+frames = to(1,50)
+
+# link atom, where only the charge of the MM link atom is moved
+link_atom[9263] = [9262, 0.68, 'H']
+zero_scatter+=[[ [9262], [9251,9253,9258] ]]
+
+# charge consistent link atom, considering the partial charge of the whole QM region as well as the MM link atom
+link_atom[9231] = [9230, 0.69, 'H']
+zero_scatter+=[[ to(9230,9244), [9219,9221,9226] ]]
+</code></pre>
+
+<i>at_list here contains the indices 1, 3, 5, 20-9230, 9260, 9262.</i>
+<br><br><i>Formally the file is parsed as Python code (with an additional </i>to(s,e)=range(s,e+1)<i> function). Any other Python syntax may be used for constructing the </i>at_list<i>, </i>frames<i>, and </i>zero_scatter<i> lists and the </i>link_atom<i> and </i>new_charge<i> dictionaries.</i>
+
+<h3>pot_reduce.py</h3>
+Reduce a file <b>pot_old.xyz</b> (Bohr) of point charges in Columbus format by combining close lying charges. A dynamic threshold is employed with the goal to describe areas close to the region of interest very accurately and to preserve the large scale electrostatic moments of a significantly larger system. Two point charges <i>i</i> and <i>j</i> of the same sign are combined into their center of charge if the distance <i>d<sub>ij</sub></i> between them is
+<br><img src="http://latex.univie.ac.at/?d_{ij}\leq C\left(\frac{r_i+r_j}{2}-r_0\right)"></img>
+<br>where <i>r<sub>i</sub></i> and <i>r<sub>j</sub></i> are their respective distances to the origin, <i>r</i><sub>0</sub> should approximately define the molecular cavity, and <i>C</i> is a global scaling constant.
+<br><br>Within the <a href="http://www.univie.ac.at/columbus/">Columbus</a> program package, it is also possible to restore gradients for all of the original point charges. It is therefore possible to compute direct QM/MM dynamics in this fashion.
+<br><br>Syntax: '<b>pot_reduce.py [&lt;mode&gt;]</b>'
+<br><br>If &lt;mode&gt; is left out or <code>mode=reduce</code>, a reduction is performed. If <code>mode=expand</code>, a gradient computed in the reduced set of point charges is expanded to the whole set of input charges. This expansion is implemented within the Columbus program package. 
+<br><br>The input is parsed from a file <b>pot_reduce.in</b> with the following information. <i>Only values with no specified default have to be entered.</i>
+<br><br><table border=1>
+<tr>
+<td><b>Keyword</b></td><td><b>Default</b></td><td><b>Description</b></td>
+</tr>
+<tr>
+<td>C</td><td>0.0</td><td>Scaling threshold. The lower this threshold is, the more point charges are retained. Suggested values: 0.01&le;<i>C</i>&le;0.2</td>
+</tr><tr>
+<td>r0</td><td>0.0</td><td>Radius (Bohr) of the molecular cavity.</td>
+</tr><tr>
+<td>orig</td><td>[0.,0.,0.]</td><td>Specify the origin in Bohr radii. <i>r<sub>i</sub></i>, <i>r<sub>j</sub></i> and <i>r</i><sub>0</sub> are taken relative to this. Typically the origin should lie at the center of mass of the QM region.</td>
+</tr><tr>
+<td>scale</td><td>[1.,1.,1.]</td><td>Scaling factor to allow specifying an elliptical cavity. Internally all quantities are rescaled by this factor. If for example the system extends 12 Bohr in the x-direction, 6 Bohr in the y-direction, and 4 Bohr in the z direction. You may specify <code>r0=4.; scale=[3.,1.5,1.]</code></td>
+</tr><tr>
+<td>formout</td><td>'col'</td><td>Output format. 'col' will produce <b>potential.xyz</b> in Columbus format, 'tmol' <b>pointcharges</b> in Turbomole format.</td>
+</tr>
+</table>
+
+<br>- Please use square brackets to enclose lists and <code>to(&lt;start&gt;,&lt;end&gt;)</code> for specifying ranges.
+<br><br><i>Example</i> <b>pot_reduce.in</b>
+<pre><code>C=0.1
+r0=0.
+orig=[3.0,-4.7,5.0]
+formout='col'
+</code></pre>
+
+<h3>interpolate.py</h3>
+Linear interpolation between two cartesian molecular structures of the same molecule.
+<br><br>Syntax: '<b>interpolate.py &lt;start_struc&gt; &lt;end_struc&gt; &lt;out_dir&gt; &lt;steps_nr&gt; &lt;file_type&gt;</b>'
+<br>e.g. <code>interpolate.py start.xyz end.xyz interpolate 10 xyz</code>
+<br><br>&lt;end_stuc&gt; is superimposed onto &lt;start_struc&gt;, then &lt;steps_nr&gt; intermediate structures are constructed and
+put into the directory &lt;out_dir&gt;. 
+<br>Linear interpolation is a clearly defined way of finding intermediate structures. But well chosen
+internal coordinates are probably more physical, especially when rotations play an important role.
+
+<h3>distances.py</h3>
+Computation of the distances (i.e. norm of the difference vector, RMSD) between a set of structures of one molecule.
+<br><br>Syntax: '<b>distances.py &lt;struc1&gt; &lt;struc2&gt; ... [-t&lt;file_type&gt;] [-mwp&lt;mass_weight_power&gt;] [-fit&lt;fitting&gt;]</b>'
+<br>e.g. <code>distances.py struc1.xyz struc2.xyz -txyz</code>
+<br><br>A table with the distances between the specified structures is printed out.
+<br>&lt;file_type&gt; is a file type supported by openbabel (type 'babel -help' for a complete list).
+<br>The default for &lt;mass_weight_power&gt; is -mwp1 which leads to regular mass weighting (i.e. &Aring;<sup>2</sup>amu for the squared norm and &Aring;amu<sup>1/2</sup> for the distance); -mwp0 means cartesian coordinates.
+<br>-fit1 which is the default specifies that structures are initially fitted onto the first structure, -fit0 leaves the structures unchanged.
+
+<h3>int_coor.py, int_coor_multi.py</h3>
+Print out values of internal coordinates.
+<br><br>Syntax: '<b>int_coor.py &lt;coors&gt; &lt;file1&gt; [&lt;file2&gt; ...]</b>'
+<br>&lt;coors&gt; contains the types of internal coordinates (dist, bend, tors) considered and the atoms involved.
+<br><br>Example: <code>int_coor.py dist 4 5 bend 1 2 3 tors 5 6 7 8 struc.xyz struc2.xyz</code>
+<br><br><code>int_coor_multi.py</code> may be used to analyze a file containing multiple structures.
+
+<h3>renumber_xyz.py</h3>
+Renumbering of an xyz file.
+<br><br>Syntax: '<b>renumber_xyz.py &lt;in_file&gt; &lt;renumber_file&gt; &lt;out_file&gt;</b>'
+<br>e.g. renumber_xyz.py struc.xyz renumber.txt struc_renumber.xyz
+<br><br>Renumber the xyz-file &lt;in_file&gt;. &lt;renumber_file&gt; contains the old numbers of the atoms in the new order (if optionally some
+of the atoms are left out, they are added at the end). The result is written into &lt;out_file&gt;.
+
+<h3>lanth_geo.py</h3>
+Computation of the SAP/tSAP angles between top and bottom squares/triangles of the cooridnation complexes.
+<br><br><i>Syntax</i>: '<b>lanth_geo.py -f&lt;file_name&gt; -b&lt;'bottom_indices'&gt;  -t&lt;'top_indices'&gt; -l&lt;central_atom_index&gt;</b>'
+<br><br>Example: <code>lanth_geo.py -f struc.xyz -b '1 2 3 4' -t '5 6 7 8' -l 9</code> 
+
+<h2>Python subroutine libraries</h2>
+The underlying python subroutine libraries can be used as a basis for more complex tasks. For more information, look at the documentation included in the python files (either in the source code or with the python 'help(...)' command).
+<ul>
+<li>struc_linalg.py - package for performing linear algebra operations on structures</li>
+<li>superposition.py - superposition of molecules with a quaternion fit [1]</li>
+<li>file_handler.py - basic file operations</li>
+</ul>
+[1] Karney, C. F. F. Journal of Molecular Graphics & Modelling 2007, 25, 595.
+<h2>Contact</h2>
+Felix Plasser (email: felix.plasser "at" univie.ac.at)
+<br>University of Vienna, Institute for Theoretical Chemistry
+<br>W&auml;hringerstr. 17, 1090, Vienna, Austria
+</body>
+</html>
