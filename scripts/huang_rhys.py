@@ -50,40 +50,45 @@ print("RMSD /3**.5: %.5f Ang"%(mc.RMSD(gs_struc, es_struc) / 3**.5))
 vmol = vib_molden.vib_molden()
 vmol.read_molden_file(vib_file)
 Kmat = vmol.ret_vib_matrix()
+
+print("Kmat")
+print(Kmat)
+print(numpy.dot(Kmat, Kmat.T))
+
 Om = vmol.ret_freqs() / units.energy['rcm']
 
-U_TO_AMU = 1./5.4857990943e-4 
+#U_TO_AMU = 1./5.4857990943e-4
 
-M1 = gs_struc.ret_mass_vector(power=1, rep=3) / U_TO_AMU
-Mm = gs_struc.ret_mass_vector(power=-0.5, rep=3) * U_TO_AMU**.5
+#M1 = gs_struc.ret_mass_vector(power=1, rep=3) / U_TO_AMU
+#Mm = gs_struc.ret_mass_vector(power=0.5, rep=3) * U_TO_AMU**.5
 
 for mode in Kmat:
-    norm = numpy.sum(mode * mode * M1)
-    if norm > 0.:
-        mode *= 1./norm
-        mode *= Mm
+    print('mode', mode)
+    mode /= M
+    norm = numpy.sum(mode * mode)
+    if norm > 1E-6:
+        mode *= norm**(-.5)
+    print('mode2', mode)
 
-print("KT K")
-KK = numpy.dot(Kmat, Kmat.T)
-print(KK[-8:,-8:])
-print(numpy.sum(KK*KK))
+#print("KT K")
+#%KK = numpy.dot(Kmat, Kmat.T)
+#print(KK[-8:,-8:])
+#print(numpy.sum(KK*KK))
 
-MM = mc.ret_mass_matrix(0)
-K2 = numpy.dot(MM, numpy.dot(Kmat, MM))
+#MM = mc.ret_mass_matrix(0)
+#K2 = numpy.dot(MM, numpy.dot(Kmat, MM))
 
-print("K2")
-print(numpy.dot(K2.T, K2)[-8:,-8:])
+#print("K2")
+#print(numpy.dot(K2.T, K2)[-8:,-8:])
 
-print("dot")
-KK = numpy.dot(Kmat.T, numpy.dot(MM, Kmat))
-print(KK[-8:,-8:])
+#print("dot")
+#KK = numpy.dot(Kmat.T, numpy.dot(MM, Kmat))
+#print(KK[-8:,-8:])
 
-print(Kmat[1])
+#print(Kmat[1])
 
-tmp = numpy.dot(mdiff_vec, Kmat) / units.length['A']
-dQ = Om**.5 * tmp
+dQ = Om**.5 * numpy.dot(mdiff_vec, Kmat.T) / units.length['A']
 
-
-
-#for i, val in enumerate(dQ):
-#    print("%3i % 7.4f % 7.4f"%(i+1, val, val*val/2.))
+print("mode disp    S_i")
+for i, val in enumerate(dQ):
+    print("%3i % 7.4f % 7.4f"%(i+1, val, val*val/2.))
