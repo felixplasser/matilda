@@ -5,12 +5,29 @@ version 1.0
 author: Felix Plasser
 usage: Print out the value of a specified internal coordinate.
 """
-
-import os, sys, locale
-import numpy
-#import openbabel
+import argparse
+import numpy ,sys
 from openbabel import pybel
 from matilda import file_handler, struc_linalg
+
+parser = argparse.ArgumentParser(
+    prog='int_coor_multi.py',
+    description='Outputs the value of the speciefied internal coordinate'
+)
+parser.add_argument('-d', '--dist', nargs = 2, type = int, default = [1,2], help = 'The indices of atoms for distance')
+parser.add_argument('-b', '--bend', nargs = 3, type = int, default = [1 ,2 ,4], help = 'The indices of atoms for bend angle')
+parser.add_argument('-t', '--tors', nargs = 4, type = int, default = [5, 1 ,2 ,6], help = 'The indices of atoms for dihedral angle')
+parser.add_argument('-f', '--filename', default = ['dyn.xyz'])
+parser.add_argument('-ft', '--filetype', default = 'xyz')
+parser.add_argument('-dg', '--digits',type = int,  default = 4, help = 'Number of decimal points')
+args = parser.parse_args()
+
+dist = args.dist
+bend = args.bend
+tors = args.tors
+files = args.filename
+file_type = args.filetype
+digits = args.digits # output digits
 
 def print_info():
     print('Usage example: int_coor_multi.py dist 4 5 struc.xyz')
@@ -19,64 +36,30 @@ def print_info():
     print('   -dig <number of digits in print out>')
     sys.exit()
 
-if len(sys.argv) < 5:
-   print_info()
-
-# defaults
-file_type = 'xyz'
-digits = 4 # output digits
-
-# read command line input
-files = []
 coors = []  # which coordinates are read out.
-args = sys.argv[1:]
-while len(args) > 0:
-    arg = args.pop(0)
-
-    if arg == 'dist':
-        coors += [['dist',int(args.pop(0)), int(args.pop(0))]]
-    elif arg == 'bend':
-        coors += [['bend',int(args.pop(0)), int(args.pop(0)), int(args.pop(0))]]
-    elif arg == 'tors':
-        coors += [['tors',int(args.pop(0)), int(args.pop(0)), int(args.pop(0)), int(args.pop(0))]]
-    elif arg == '-type':
-        file_type = args.pop(0)
-    elif arg == '-dig':
-        digits = int(args.pop(0))
-    elif arg == '-h':
-        print_info()
-    elif arg[0] == '-':
-        print('Unsupported option: ' + arg)
-        print('int_coor.py -h for more information')
-        sys.exit()
-    else:
-        files += [arg]
+if args.dist:
+  coors.append(['dist'] + args.dist)
+if args.bend:
+    coors.append(['bend'] + args.bend)
+if args.tors:
+    coors.append(['tors'] + args.tors)
         
-
-#print coors, files
-
 struc = struc_linalg.structure()
-#obconversion = openbabel.OBConversion()
-#obconversion.SetInFormat(file_type)
-#str_mol = openbabel.OBMol()
 
 tm = file_handler.table_maker(col_widths=[20]+len(coors)*[5+digits])
 tm.print_line(['File']+[coor[0] for coor in coors])
 for file in files:
   for mol in pybel.readfile(file_type, file):
-#  for i in xrange(5):
-#    obconversion.ReadFile(str_mol, file)
     struc.get_mol(mol=mol.OBMol,file_path=file, file_type=file_type)
     out_line = [file]
     for coor in coors:
         if coor[0] == 'dist':
             dist = struc.ret_bond_length(*coor[1:])
-            out_line += [locale.format("%.*f", (digits, dist))]
+            out_line += ["%.*f"%(digits, dist)]
         elif coor[0] == 'bend':
             bend = struc.ret_bend(*coor[1:])
-            out_line += [locale.format("%.*f", (digits, bend))]
+            out_line += ["%.*f"%(digits,bend)]
         elif coor[0] == 'tors':
             tors = struc.ret_tors(*coor[1:])
-            out_line += [locale.format("%.*f", (digits, tors))]
+            out_line += ["%.*f"%(digits,tors)]
     tm.print_line(out_line)
-#print tm.return_table()
