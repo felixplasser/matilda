@@ -33,7 +33,7 @@ jobs:
         
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
-      if: github.ref == 'refs/heads/master'  # Only deploy from master branch
+      #if: github.ref == 'refs/heads/master'  # Only deploy from master branch
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./doc/build/html
