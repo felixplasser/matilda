@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MATILDA &mdash; MATILDA 0.1 documentation</title>
+  <title>Utilities &mdash; MATILDA 0.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
@@ -19,7 +19,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Installation" href="installation.html" /> 
+    <link rel="prev" title="Vibronic Coupling" href="vibcoup.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -30,7 +30,7 @@
 
           
           
-          <a href="#">
+          <a href="index.html">
             
           </a>
 <div role="search">
@@ -42,12 +42,16 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="int_coor.html">Internal Coordinates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="alignment.html">Structure alignment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vibcoup.html">Vibronic Coupling</a></li>
-<li class="toctree-l1"><a class="reference internal" href="util.html">Utilities</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#format-conversion">Format conversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#renumber-file">Renumber file</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -56,17 +60,17 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">MATILDA</a>
+          <a href="index.html">MATILDA</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">MATILDA</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Utilities</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/util.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -74,35 +78,33 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="matilda">
-<h1>MATILDA<a class="headerlink" href="#matilda" title="Link to this heading"></a></h1>
-<p>Welcome to the MATILDA documentation!</p>
-<div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="int_coor.html">Internal Coordinates</a></li>
-<li class="toctree-l1"><a class="reference internal" href="alignment.html">Structure alignment</a></li>
-<li class="toctree-l1"><a class="reference internal" href="vibcoup.html">Vibronic Coupling</a></li>
-<li class="toctree-l1"><a class="reference internal" href="util.html">Utilities</a></li>
-</ul>
+  <section id="utilities">
+<h1>Utilities<a class="headerlink" href="#utilities" title="Link to this heading"></a></h1>
+<section id="format-conversion">
+<h2>Format conversion<a class="headerlink" href="#format-conversion" title="Link to this heading"></a></h2>
+<p>File format conversion utility, based on and similar to the babel program but with additional support for Columbus/Newton-X (“col”) and Tinker (“txyz2”) formats.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">babel</span><span class="o">.</span><span class="n">py</span> <span class="o">&lt;</span><span class="n">in_format</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">in_file</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">out_format</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">out_file</span><span class="o">&gt;</span>
+</pre></div>
 </div>
-<p>If you have any questions,
-post an <a class="reference external" href="https://github.com/felixplasser/matilda/issues">issue on github</a>,
-or send me an email at f.plasser(at)lboro.ac.uk.</p>
-<section id="id1">
-<h2>MATILDA<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
-<p>Scripts for <strong>manipulation</strong>, comparison and conversion of molecular structures (previously struc_manip).</p>
-<ul class="simple">
-<li><p><strong>M</strong>-olecular structure manipulation</p></li>
-<li><p><strong>A</strong>-lignment via a least squares fit</p></li>
-<li><p><strong>T</strong>-ransformation</p></li>
-<li><p><strong>I</strong>-nsertion of a molecule/ligand into a larger template</p></li>
-<li><p><strong>L</strong>-inear interpolation between two structures</p></li>
-<li><p><strong>D</strong>-istance measurement between two atoms</p></li>
-<li><p><strong>A</strong>-ngles and torsion angles</p></li>
-</ul>
-<p><a class="reference external" href="https://felixplasser.github.io/matilda/">Documentation</a></p>
+<p>Example (to convert from Turbomole format to Columbus)</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>babel.py tmol coord col geom
+</pre></div>
+</div>
+</section>
+<section id="renumber-file">
+<h2>Renumber file<a class="headerlink" href="#renumber-file" title="Link to this heading"></a></h2>
+<p>Renumbering of an xyz file.
+Renumber the xyz-file <cite>&lt;in_file&gt;</cite>.
+The file <cite>&lt;renumber_file&gt;</cite> contains the old numbers of the atoms in the new order
+(if optionally some of the atoms are left out, they are added at the end).
+The result is written into <cite>&lt;out_file&gt;</cite>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">renumber_xyz</span><span class="o">.</span><span class="n">py</span> <span class="o">&lt;</span><span class="n">in_file</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">renumber_file</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">out_file</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Example</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>renumber_xyz.py struc.xyz renumber.txt struc_renumber.xyz
+</pre></div>
+</div>
 </section>
 </section>
 
@@ -110,7 +112,7 @@ or send me an email at f.plasser(at)lboro.ac.uk.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="vibcoup.html" class="btn btn-neutral float-left" title="Vibronic Coupling" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

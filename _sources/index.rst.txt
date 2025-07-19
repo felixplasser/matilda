@@ -12,6 +12,8 @@ Welcome to the MATILDA documentation!
    installation
    int_coor
    alignment
+   vibcoup
+   util
 
 If you have any questions,
 post an `issue on github <https://github.com/felixplasser/matilda/issues>`_,
