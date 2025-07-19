@@ -21,8 +21,8 @@ Example
 
     superimpose.py ref.xyz struc1.xyz struc2.xyz -txyz
 
-RMSD
-~~~~
+Distance/RMSD
+~~~~~~~~~~~~~
 
 Computation of the distances (i.e. norm of the difference vector, RMSD) between a set of structures of one molecule.
 
