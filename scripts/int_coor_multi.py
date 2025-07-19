@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 """
 version 1.0
@@ -6,7 +6,7 @@ author: Felix Plasser
 usage: Print out the value of a specified internal coordinate.
 """
 import argparse
-import numpy ,sys
+import numpy, sys
 from openbabel import pybel
 from matilda import file_handler, struc_linalg
 
@@ -43,7 +43,7 @@ if args.bend:
     coors.append(['bend'] + args.bend)
 if args.tors:
     coors.append(['tors'] + args.tors)
-        
+
 struc = struc_linalg.structure()
 
 tm = file_handler.table_maker(col_widths=[20]+len(coors)*[5+digits])
