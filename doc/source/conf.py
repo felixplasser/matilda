@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'matilda'
+project = 'MATILDA'
 copyright = '2025, Felix Plasser'
 author = 'Felix Plasser'
 

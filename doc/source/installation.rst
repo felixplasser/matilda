@@ -1,7 +1,7 @@
 Installation
 ------------
 
-The installation requires a few simple steps.
+The installation requires a few simple steps and works on most Linux or Mac systems.
 
 Download and extract the source file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

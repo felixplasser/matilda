@@ -1,7 +1,7 @@
 .. matilda documentation master file
 
 MATILDA
-====================================
+=======
 
 Welcome to the MATILDA documentation!
 
@@ -10,8 +10,8 @@ Welcome to the MATILDA documentation!
    :caption: Contents:
 
    installation
-   overview
-   usage
+   int_coor
+   alignment
 
 If you have any questions,
 post an `issue on github <https://github.com/felixplasser/matilda/issues>`_,
