@@ -1,0 +1,13 @@
+Overview
+________
+
+MATILDA provides a variety of structure manipulation tools.
+
+Internal coordinates
+~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    int_coor_multi.py
+
+Analyse internal coordinates of a molecule or a set of molecules.
