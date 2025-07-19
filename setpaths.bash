@@ -1,4 +1,6 @@
-STRUC_MANIP=/PhotoChem/programs/MATILDA/GIT
+#!/bin/bash
+MATILDA=/PhotoChem/programs/MATILDA/GIT
 
-export PATH=$STRUC_MANIP/scripts:$PATH
-export PYTHONPATH=$STRUC_MANIP:$PYTHONPATH
+export PATH=$MATILDA/bin:$PATH
+#export PATH=$MATILDA/bin_old:$PATH
+export PYTHONPATH=$MATILDA:$PYTHONPATH

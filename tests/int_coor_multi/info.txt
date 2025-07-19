@@ -1,9 +1,0 @@
-[]$ caller int_coor_multi.py dist 1 2 bend 1 2 4 tors 5 1 2 6 dyn.xyz
-Calling:
-/quant/LIRP/felix/VERSIONS/STRUC_MANIP.2010-12-16/scripts/int_coor_multi.py
-File                dist     bend     tors     
-dyn.xyz             1.3768   91.8044  -1.5544  
-dyn.xyz             1.3703   92.0107  -1.4248  
-dyn.xyz             1.3650   92.2058  -1.2910  
-dyn.xyz             1.3612   92.3850  -1.1567  
-
