@@ -12,7 +12,7 @@ from matilda import struc_linalg
 
 if len(sys.argv) < 6:
    print('At least 5 arguments required.')
-   print('Syntax: python add_normal_mode.py <in_struc> <out_struc> <vib_file> <nm_ind> <disp> [<type>]')
+   print('Syntax: add_normal_mode.py <in_struc> <out_struc> <vib_file> <nm_ind> <disp> [<type>]')
    sys.exit()
    
 # read in data
