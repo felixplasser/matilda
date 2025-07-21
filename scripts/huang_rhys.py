@@ -107,5 +107,5 @@ plt.title('Huang-Rhys Spectrum')
 plt.grid(True, linestyle='--', alpha=0.5)
 plt.tight_layout()
 plt.savefig("huang_rhys_spectrum.png", dpi=300)
-plt.show()
+#plt.show()
 

@@ -1,0 +1,25 @@
+Huang Rhys analysis for CH2
+
+*** Command
+huang_rhys.py GS.xyz ES_T1.xyz orca.out.molden
+
+*** Output
+huang_rhys.py <gs_struc> <es_struc> <vib_mld>
+Distance: 0.3134 Ang
+MW Dist: 0.72333 amu**.5 Ang
+MW MDist   : 0.11155 Ang
+RMSD /3**.5: 0.11155 Ang
+
+Mode   Frequency(cm^-1)   dQ     Huang-Rhys S
+  1       1383.71   -2.7521     3.787115
+  2       2933.91   0.7127     0.253994
+  3       3009.17   -0.0000     0.000000
+
+Reorganization Energy: 0.742103 eV
+
+Top 10 modes with highest Huang-Rhys factors:
+Mode    Freq (cm^-1)        S_i
+   1         1383.71   3.787115
+   2         2933.91   0.253994
+   3         3009.17   0.000000
+
