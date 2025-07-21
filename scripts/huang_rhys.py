@@ -43,6 +43,7 @@ M = gs_struc.ret_mass_vector(power=0.5, rep=3)
 mdiff_vec = diff_vec * M
 print("MW Dist: %.5f amu**.5 Ang"%(numpy.sum(mdiff_vec*mdiff_vec))**.5)
 print("MW MDist   : %.5f Ang"%(numpy.sum(mdiff_vec*mdiff_vec)/numpy.sum(M*M))**.5)
+mdiff_vec *= units.mass['amu']**(-.5) / units.length['A'] # Conversion to atomic units
 
 mc = struc_linalg.mol_calc(gs_file, file_type=file_type)
 print("RMSD /3**.5: %.5f Ang"%(mc.RMSD(gs_struc, es_struc) / 3**.5))
@@ -52,54 +53,28 @@ vmol = vib_molden.vib_molden()
 vmol.read_molden_file(vib_file)
 Kmat = vmol.ret_vib_matrix()
 
-#print("Kmat")
-#print(Kmat)
-#print(numpy.dot(Kmat, Kmat.T))
-
 freqs_cm = vmol.ret_freqs()   # Frequencies in cm^-1
+Om = freqs_cm / units.energy['rcm']
 
-Om = vmol.ret_freqs() / units.energy['rcm']
-
-#U_TO_AMU = 1./5.4857990943e-4
-
-#M1 = gs_struc.ret_mass_vector(power=1, rep=3) / U_TO_AMU
-#Mm = gs_struc.ret_mass_vector(power=0.5, rep=3) * U_TO_AMU**.5
-
+# TODO: put this into vib_molden
 for mode in Kmat:
-    print('mode', mode)
     mode *= M
     norm = numpy.sum(mode * mode)
-    if norm > 1E-6:
+    if norm > 1E-8:
         mode *= norm**(-.5)
-    print('mode2', mode)
 
-#print("KT K")
-#%KK = numpy.dot(Kmat, Kmat.T)
-#print(KK[-8:,-8:])
-#print(numpy.sum(KK*KK))
+#print("Final Kmat:")
+#print(Kmat.T) -> This seems to work
 
-#MM = mc.ret_mass_matrix(0)
-#K2 = numpy.dot(MM, numpy.dot(Kmat, MM))
-
-#print("K2")
-#print(numpy.dot(K2.T, K2)[-8:,-8:])
-
-#print("dot")
-#KK = numpy.dot(Kmat.T, numpy.dot(MM, Kmat))
-#print(KK[-8:,-8:])
-
-#print(Kmat[1])
-
-dQ = Om**.5 * numpy.dot(mdiff_vec, Kmat.T) / units.length['A']
+dQ = Om**.5 * numpy.dot(mdiff_vec, Kmat.T)
 S_factors = 0.5 * dQ**2
 
 
-valid_indices = freqs_cm > 0
+valid_indices = freqs_cm > 1E-8
 freqs_cm = freqs_cm[valid_indices]
 Om = Om[valid_indices]
 dQ = dQ[valid_indices]
 S_factors = S_factors[valid_indices]
-
 
 # Reorganization energy (Hartree and eV)
 CM_TO_AU = 1.0 / 219474.6313705
@@ -113,7 +88,7 @@ print("\nMode   Frequency(cm^-1)   dQ     Huang-Rhys S")
 for i in range(len(freqs_cm)):
     print(f"{i+1:3d}    {freqs_cm[i]:10.2f}   {dQ[i]:6.4f}   {S_factors[i]:10.6f}")
 
-print(f"\nReorganization Energy: {reorg_energy_ev:.4f} eV")
+print(f"\nReorganization Energy: {reorg_energy_ev:.6f} eV")
 
 
 # Print top 10 modes
@@ -122,7 +97,6 @@ print("\nTop 10 modes with highest Huang-Rhys factors:")
 print(f"{'Mode':>4} {'Freq (cm^-1)':>15} {'S_i':>10}")
 for idx in top_indices:
     print(f"{idx+1:4d} {freqs_cm[idx]:15.2f} {S_factors[idx]:10.6f}")
-
 
 # Plot Huang-Rhys Spectrum
 plt.figure(figsize=(8,5))
