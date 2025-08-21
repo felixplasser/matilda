@@ -69,34 +69,39 @@ for mode in Kmat:
 dQ = Om**.5 * numpy.dot(mdiff_vec, Kmat.T)
 S_factors = 0.5 * dQ**2
 
-
 valid_indices = freqs_cm > 1E-8
 freqs_cm = freqs_cm[valid_indices]
 Om = Om[valid_indices]
 dQ = dQ[valid_indices]
 S_factors = S_factors[valid_indices]
 
-# Reorganization energy (Hartree and eV)
-CM_TO_AU = 1.0 / 219474.6313705
-HARTREE_TO_EV = 27.2114
 
-freqs_au = freqs_cm * CM_TO_AU
-reorg_energy_au = numpy.sum(S_factors * freqs_au)
-reorg_energy_ev = reorg_energy_au * HARTREE_TO_EV
+# Reorganization energy per mode (in eV)
+reorg_energy_modes = S_factors * Om * units.energy['eV']
+reorg_energy_total = numpy.sum(reorg_energy_modes)
 
-print("\nMode   Frequency(cm^-1)   dQ     Huang-Rhys S")
+print("\nMode   Frequency(cm^-1)   dQ     Huang-Rhys S     Reorg_Energy (eV)")
 for i in range(len(freqs_cm)):
-    print(f"{i+1:3d}    {freqs_cm[i]:10.2f}   {dQ[i]:6.4f}   {S_factors[i]:10.6f}")
+    print(f"{i+1:3d}    {freqs_cm[i]:10.2f}   {dQ[i]:6.4f}   {S_factors[i]:10.6f}     {reorg_energy_modes[i]:12.6f}")
 
-print(f"\nReorganization Energy: {reorg_energy_ev:.6f} eV")
+print(f"\nTotal Reorganization Energy: {reorg_energy_total:.6f} eV")
 
 
 # Print top 10 modes
 top_indices = numpy.argsort(S_factors)[-10:][::-1]
 print("\nTop 10 modes with highest Huang-Rhys factors:")
-print(f"{'Mode':>4} {'Freq (cm^-1)':>15} {'S_i':>10}")
+print(f"{'Mode':>4} {'Freq (cm^-1)':>15} {'S_i':>10} {'λ_i (eV)':>12}")
 for idx in top_indices:
-    print(f"{idx+1:4d} {freqs_cm[idx]:15.2f} {S_factors[idx]:10.6f}")
+    print(f"{idx+1:4d} {freqs_cm[idx]:15.2f} {S_factors[idx]:10.6f} {reorg_energy_modes[idx]:12.6f}")
+
+
+# Print top 10 modes by reorganisation energy
+top_reorg_indices = numpy.argsort(reorg_energy_modes)[-10:][::-1]
+print("\nTop 10 modes with highest Reorganisation Energy:")
+print(f"{'Mode':>4} {'Freq (cm^-1)':>15} {'S_i':>10} {'λ_i (eV)':>12}")
+for idx in top_reorg_indices:
+    print(f"{idx+1:4d} {freqs_cm[idx]:15.2f} {S_factors[idx]:10.6f} {reorg_energy_modes[idx]:12.6f}")
+
 
 # Plot Huang-Rhys Spectrum
 plt.figure(figsize=(8,5))
