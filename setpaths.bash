@@ -1,6 +1,5 @@
 #!/bin/bash
-MATILDA=/PhotoChem/programs/MATILDA/GIT
+MATILDA=/home/lunet/cmur/programs/matilda
 
-export PATH=$MATILDA/bin:$PATH
-#export PATH=$MATILDA/bin_old:$PATH
+export PATH=$MATILDA/scripts:$PATH
 export PYTHONPATH=$MATILDA:$PYTHONPATH
