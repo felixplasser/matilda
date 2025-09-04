@@ -14,11 +14,11 @@ parser = argparse.ArgumentParser(
     prog='int_coor_multi.py',
     description='Outputs the value of the speciefied internal coordinate'
 )
-parser.add_argument('-d', '--dist', nargs = 2, type = int, default = [1,2], help = 'The indices of atoms for distance')
-parser.add_argument('-b', '--bend', nargs = 3, type = int, default = [1 ,2 ,4], help = 'The indices of atoms for bend angle')
-parser.add_argument('-t', '--tors', nargs = 4, type = int, default = [5, 1 ,2 ,6], help = 'The indices of atoms for dihedral angle')
-parser.add_argument('-f', '--filename', default = ['dyn.xyz'])
-parser.add_argument('-ft', '--filetype', default = 'xyz')
+parser.add_argument('-f', '--filename', nargs = '+')
+parser.add_argument('--filetype', default = 'xyz')
+parser.add_argument('-d', '--dist', nargs = 2, type = int, action='append', help = 'The indices of atoms for distance')
+parser.add_argument('-b', '--bend', nargs = 3, type = int, action='append', help = 'The indices of atoms for bend angle')
+parser.add_argument('-t', '--tors', nargs = 4, type = int, action='append', help = 'The indices of atoms for dihedral angle')
 parser.add_argument('-dg', '--digits',type = int,  default = 4, help = 'Number of decimal points')
 args = parser.parse_args()
 
@@ -36,13 +36,17 @@ def print_info():
     print('   -dig <number of digits in print out>')
     sys.exit()
 
-coors = []  # which coordinates are read out.
+coors = []
 if args.dist:
-  coors.append(['dist'] + args.dist)
+    for d in args.dist:
+        coors.append(['dist'] + d)
 if args.bend:
-    coors.append(['bend'] + args.bend)
+    for b in args.bend:
+        coors.append(['bend'] + b)
 if args.tors:
-    coors.append(['tors'] + args.tors)
+    for t in args.tors:
+        coors.append(['tors'] + t)
+
         
 struc = struc_linalg.structure()
 
