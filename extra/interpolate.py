@@ -13,7 +13,7 @@ if not len(sys.argv) == 6:
    print 'Five arguments required.'
    print 'Syntax: python interpolate.py <start_struc> <end_struc> <out_dir> <steps_nr> <file_type>'
    sys.exit()
-   
+
 
 start_file = sys.argv[1]
 end_file = sys.argv[2]
@@ -25,7 +25,7 @@ try:
     os.makedirs(out_dir)
 except OSError:
     print 'Output directory could not be created. It either already exists or you have no writing access.'
-    
+
 # for calculations an instance of this class with a default molecule has to be defined
 mc = struc_linalg.mol_calc(def_file_path=start_file, file_type=file_type)
 
@@ -53,4 +53,4 @@ for i in xrange(1,steps_nr+1):
     except OSError:
         print 'Output directory could not be created. It either already exists or you have no writing access.'
 
-    grid_struc.make_coord_file(os.path.join(out_dir,  'struc_%6.4f'%(x), 'coord.'+file_type), file_type=file_type) 
+    grid_struc.make_coord_file(os.path.join(out_dir,  'struc_%6.4f'%(x), 'coord.'+file_type), file_type=file_type)
