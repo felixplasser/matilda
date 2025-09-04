@@ -9,7 +9,7 @@ Basic analysis
 Analyse internal coordinates of a molecule.
 This also works for a file containing multiple geometries of one molecule (e.g. coming from dynamics).
 
-::
+.. code:: text
 
     int_coor_multi.py
 
@@ -34,7 +34,7 @@ This also works for a file containing multiple geometries of one molecule (e.g. 
 	
 Example
 
-::
+.. code:: text
 
     int_coor_multi.py -d 1 2 -b 1 2 4 -t 5 1 2 6 -f dyn.xyz
 
