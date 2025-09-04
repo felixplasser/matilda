@@ -1,4 +1,4 @@
-lanth_geo.py -f nucfid.xyz -b '2 23 16 9' -t '33 83 77 71'
+> lanth_geo.py -f nucfid.xyz -b 2 23 16 9 -t 33 83 77 71
 
 ---
 
