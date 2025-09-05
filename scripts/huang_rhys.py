@@ -9,6 +9,7 @@ usage: Compute Huang-Rhys parameters and related quantities.
 """
 
 import os, sys
+import math
 import numpy # tmp
 import matplotlib.pyplot as plt
 from matilda import vib_molden
@@ -75,7 +76,6 @@ Om = Om[valid_indices]
 dQ = dQ[valid_indices]
 S_factors = S_factors[valid_indices]
 
-
 # Reorganization energy per mode (in eV)
 reorg_energy_modes = S_factors * Om * units.energy['eV']
 reorg_energy_total = numpy.sum(reorg_energy_modes)
@@ -86,31 +86,57 @@ for i in range(len(freqs_cm)):
 
 print(f"\nTotal Reorganization Energy: {reorg_energy_total:.6f} eV")
 
-
-# Print top 10 modes
-top_indices = numpy.argsort(S_factors)[-10:][::-1]
-print("\nTop 10 modes with highest Huang-Rhys factors:")
-print(f"{'Mode':>4} {'Freq (cm^-1)':>15} {'S_i':>10} {'λ_i (eV)':>12}")
-for idx in top_indices:
-    print(f"{idx+1:4d} {freqs_cm[idx]:15.2f} {S_factors[idx]:10.6f} {reorg_energy_modes[idx]:12.6f}")
+def show_top_modes(title, indices, freqs_cm, S_factors, reorg_energy_modes, N):
+    print(f"\nTop {N} modes with {title}:")
+    print(f"{'Mode':>4} {'Freq (cm^-1)':>15} {'S_i':>10} {'λ_i (eV)':>12}")
+    for idx in indices[:N]:
+        print(f"{idx + 1:4d} {freqs_cm[idx]:15.2f} {S_factors[idx]:10.6f} {reorg_energy_modes[idx]:12.6f}")
 
 
-# Print top 10 modes by reorganisation energy
-top_reorg_indices = numpy.argsort(reorg_energy_modes)[-10:][::-1]
-print("\nTop 10 modes with highest Reorganisation Energy:")
-print(f"{'Mode':>4} {'Freq (cm^-1)':>15} {'S_i':>10} {'λ_i (eV)':>12}")
-for idx in top_reorg_indices:
-    print(f"{idx+1:4d} {freqs_cm[idx]:15.2f} {S_factors[idx]:10.6f} {reorg_energy_modes[idx]:12.6f}")
+# Display menu ONCE and run selected option
+print("\nChoose an option:")
+print("1) Show top N modes with highest Huang-Rhys factors")
+print("2) Show top N modes with highest reorganisation energies")
+print("3) Plot and save Huang-Rhys spectrum")
+print("4) Save Huang-Rhys factors and frequencies to file")
 
+choice = input("Enter your choice (1-4): ").strip()
 
-# Plot Huang-Rhys Spectrum
-plt.figure(figsize=(8,5))
-plt.bar(freqs_cm, S_factors, width=5, align='center', color='mediumblue', edgecolor='black', linewidth=0.7)
-plt.xlabel('Vibrational frequency (cm$^{-1}$)')
-plt.ylabel('Huang-Rhys factor $S_i$')
-plt.title('Huang-Rhys Spectrum')
-plt.grid(True, linestyle='--', alpha=0.5)
-plt.tight_layout()
-plt.savefig("huang_rhys_spectrum.png", dpi=300)
-#plt.show()
+if choice == "1":
+    try:
+        N = int(input("How many top modes to display? "))
+        top_indices = numpy.argsort(S_factors)[-N:][::-1]
+        show_top_modes("highest Huang-Rhys factors", top_indices, freqs_cm, S_factors, reorg_energy_modes, N)
+    except ValueError:
+        print("Invalid input. Please enter a number.")
+
+elif choice == "2":
+    try:
+        N = int(input("How many top modes to display? "))
+        top_reorg_indices = numpy.argsort(reorg_energy_modes)[-N:][::-1]
+        show_top_modes("highest reorganization energies", top_reorg_indices, freqs_cm, S_factors, reorg_energy_modes, N)
+    except ValueError:
+        print("Invalid input. Please enter a number.")
+
+elif choice == "3":
+    plt.figure(figsize=(8, 5))
+    plt.bar(freqs_cm, S_factors, width=5, align='center', color='mediumblue', edgecolor='black', linewidth=0.7)
+    plt.xlabel('Vibrational frequency (cm$^{-1}$)')
+    plt.ylabel('Huang-Rhys factor $S_i$')
+    plt.title('Huang-Rhys Spectrum')
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.tight_layout()
+    plt.savefig("huang_rhys_spectrum.png", dpi=300)
+    print("Spectrum saved to 'huang_rhys_spectrum.png'")
+
+elif choice == "4":
+    output_file = "huang_rhys_data.txt"
+    with open(output_file, "w") as f:
+        f.write("Mode\tFrequency(cm^-1)\tHuang-Rhys Factor (S_i)\n")
+        for i in range(len(freqs_cm)):
+            f.write(f"{i + 1}\t{freqs_cm[i]:.2f}\t{S_factors[i]:.6f}\n")
+    print(f"Huang-Rhys data saved to '{output_file}'")
+
+else:
+    print("Invalid choice. Please enter a number between 1 and 4.")
 
