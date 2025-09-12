@@ -38,6 +38,32 @@ Example
 
     int_coor_multi.py -d 1 2 -b 1 2 4 -t 5 1 2 6 -f dyn.xyz
 
+Rotational constants
+~~~~~~~~~~~~~~~~~~~~
+
+Computes the three rotational constants (in MHz) of a molecule from its cartesian coordinates.
+It can also accept multiple xyz files.
+
+.. code:: text
+
+	rot_const.py
+
+	usage: rot_const [-h] [-f FILENAME [FILENAME ...]] [--filetype FILETYPE]
+
+	Computes rotational constants (in MHz) of the molecule from geometry
+
+	options:
+	-h, --help            show this help message and exit
+	-f FILENAME [FILENAME ...], --filename FILENAME [FILENAME ...]
+	--filetype FILETYPE
+
+Example
+
+.. code:: text
+
+	rot_const.py -f 1orca.xyz 2orca.xyz
+
+
 Lanthanide complexes
 ~~~~~~~~~~~~~~~~~~~~
 
