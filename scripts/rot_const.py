@@ -17,7 +17,7 @@ def rot_constant(filename):
     struc = struc_linalg.structure()
     struc.read_file(file_path = filename, file_type = filetype)
 
-    I = struc.ret_moment_of_inertia() * 1.66053906660E-47 #conversion of I from Da.A2 to kg.m2
+    I = struc.ret_moment_of_inertia() / units.constants['Nl'] * 1.E-23 #conversion of I from Da.A2 to kg.m2
 
 
     eigenvalues,_ = np.linalg.eigh(I)
