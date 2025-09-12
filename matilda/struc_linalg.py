@@ -227,6 +227,31 @@ class structure:
 
         return xyz / tmass
 
+    def ret_moment_of_inertia(self):
+        """
+        Return the moment of inertia.
+        """
+
+        I = numpy.zeros((3,3))
+        com = self.ret_center_of_mass()
+
+        for i in range(self.mol.NumAtoms()):
+            atom = self.mol.GetAtom(i+1)
+            x = atom.x()
+            y = atom.y()
+            z = atom.z()
+            m = atom.GetExactMass()
+            x -= com[0]
+            y -= com[1]
+            z -= com[2]
+            I += m* numpy.array([
+            [y**2+z**2, -x*y, -x*z],
+            [-x*y, x**2+z**2, -y*z],
+            [-x*z, -y*z, x**2+y**2]
+            ])
+
+        return(I)
+
     def ret_normal_vector(self, at_list):
         """
         Return a normalised vector perpendicular to the plane spanned by

@@ -30,7 +30,9 @@ mass={'au':1.0,
 dipole={'D':2.54174619,
         'Cm':8.47835267E-30
 }
-constants={'Nl':6.02214179E23}
+constants={'Nl':6.02214179E23,
+           'h' :6.62607015E-34
+}
 
 # short cuts
 def eV2nm(val):
