@@ -31,16 +31,16 @@ if __name__=='__main__':
 
     parser.add_argument('-f', '--filename', default='geom.xyz')
     parser.add_argument('--filetype', default='xyz')
-    parser.add_argument('-l', '--lanth_ind', default='1', help='index defining the lanthanide')
-    parser.add_argument('-b', '--bottom_inds', default='2 3 4 5', help='indices defining the bottom square')
-    parser.add_argument('-t', '--top_inds', default='6 7 8 9', help='indices defining the top square')
+    parser.add_argument('-l', '--lanth_ind', type = int, default=1, help='index defining the lanthanide')
+    parser.add_argument('-b', '--bottom_inds', nargs = '+', type = int, default=[2, 3, 4, 5], help='indices defining the bottom square')
+    parser.add_argument('-t', '--top_inds', nargs = '+', type = int, default=[6, 7, 8, 9], help='indices defining the top square')
     args = parser.parse_args()
 
     infile = args.filename
     intype = args.filetype
-    lanth_ind = int(args.lanth_ind)
-    bottom_inds = [int(bi) for bi in args.bottom_inds.split()]
-    top_inds = top_inds = [int(ti) for ti in args.top_inds.split()]
+    lanth_ind = args.lanth_ind
+    bottom_inds = args.bottom_inds
+    top_inds = args.top_inds
 
     struc = struc_linalg.structure()
     struc.read_file(file_path=infile, file_type=intype)

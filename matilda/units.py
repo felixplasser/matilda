@@ -33,7 +33,8 @@ dipole={'D':2.54174619,
         'Cm':8.47835267E-30
 }
 constants={'Nl':6.02214179E23,
-           'c0':137.035999 # speed of light in a.u., 1/alpha
+           'c0':137.035999, # speed of light in a.u., 1/alpha
+           'h' :6.62607015E-34
 }
 
 # short cuts

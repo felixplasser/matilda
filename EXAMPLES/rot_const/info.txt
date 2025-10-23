@@ -1,0 +1,8 @@
+> rot_const.py -f 1orca.xyz 2orca.xyz 3orca.xyz 4orca.xyz
+
+---
+
+Rotational constants in MHz :   101.103521    50.700258    46.231285
+Rotational constants in MHz :    14.606530    12.066433     7.127815
+Rotational constants in MHz :    59.254627    57.923593    42.866962
+Rotational constants in MHz :    70.791790    69.829224    45.733359
