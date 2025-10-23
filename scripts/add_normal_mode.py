@@ -19,8 +19,8 @@ if len(sys.argv) < 6:
 in_file = sys.argv[1]
 out_file = sys.argv[2]
 vib_file = sys.argv[3]
-nm_ind = eval(sys.argv[4])
-disp = eval(sys.argv[5]) # displacement
+nm_ind = float(sys.argv[4])
+disp =   float(sys.argv[5]) # displacement
 try:
     file_type = sys.argv[6]
 except IndexError:

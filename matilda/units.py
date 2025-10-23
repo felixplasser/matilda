@@ -17,7 +17,8 @@ energy={'au':1.0,
 }
 length={'au':1.0,
         'A':0.529177249,
-        'm':0.529177249E-10
+        'm':0.529177249E-10,
+        'cm':0.529177249E-8
 }
 time={'au':1.0,
       'fs':0.0241888432,
@@ -25,12 +26,14 @@ time={'au':1.0,
 }
 
 mass={'au':1.0,
-      'kg':9.10938188E-31
+      'kg':9.10938188E-31, # electron mass
+      'amu':0.000548579893 # atomic mass unit in a.u. = constants['Nl']*mass['kg']*1000
 }
 dipole={'D':2.54174619,
         'Cm':8.47835267E-30
 }
 constants={'Nl':6.02214179E23,
+           'c0':137.035999, # speed of light in a.u., 1/alpha
            'h' :6.62607015E-34
 }
 

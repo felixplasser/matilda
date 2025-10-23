@@ -1,6 +1,5 @@
 #!/bin/bash
-MATILDA=/home/lunet/cmur/programs/matilda
+MATILDA=/home/lunet/cmsg2/programs/MATILDA
 
 export PATH=$MATILDA/scripts:$PATH
-#export PATH=$MATILDA/extra:$PATH
 export PYTHONPATH=$MATILDA:$PYTHONPATH
