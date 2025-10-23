@@ -11,7 +11,6 @@ usage: Compute Huang-Rhys parameters and related quantities.
 import os, sys
 import math
 import numpy
-import matplotlib.pyplot as plt
 import argparse
 
 from matilda import vib_molden
@@ -29,14 +28,14 @@ def compute_huang_rhys(gs_file, es_file, vib_file, file_type="xyz"):
     es_struc.read_file(file_path=es_file, file_type=file_type)
     # TODO: Could do superposition here
 
-    diff_vec = es_struc.ret_vector() - gs_struc.ret_vector()
-    print("Distance: %.4f Ang" % numpy.sum(diff_vec * diff_vec) ** 0.5)
+    diff_vec = es_struc.ret_vector() - gs_struc.ret_vector()                # delR = R_ES − R_GS
+    print("Distance: %.4f Ang" % numpy.sum(diff_vec * diff_vec) ** 0.5)     # d = sqrt(sum_i^3N (delR)^2)
 
-    M = gs_struc.ret_mass_vector(power=0.5, rep=3)
+    M = gs_struc.ret_mass_vector(power=0.5, rep=3)  # M_i = sqrt(m_i)
     mdiff_vec = diff_vec * M
     print("MW Dist: %.5f amu**.5 Ang"%(numpy.sum(mdiff_vec*mdiff_vec))**.5)
     print("MW MDist   : %.5f Ang"%(numpy.sum(mdiff_vec*mdiff_vec)/numpy.sum(M*M))**.5)
-    mdiff_vec *= units.mass['amu']**(-.5) / units.length['A'] # Conversion to atomic units
+    mdiff_vec *= units.mass['amu']**(-.5) / units.length['A']   # Conversion to atomic units
 
     mc = struc_linalg.mol_calc(gs_file, file_type=file_type)
     print("RMSD /3**.5: %.5f Ang"%(mc.RMSD(gs_struc, es_struc) / 3**.5))
@@ -57,7 +56,7 @@ def compute_huang_rhys(gs_file, es_file, vib_file, file_type="xyz"):
             mode *= norm ** (-0.5)
 
     dQ = Om ** 0.5 * numpy.dot(mdiff_vec, Kmat.T)
-    S_factors = 0.5 * dQ ** 2
+    S_factors = 0.5 * dQ ** 2   # S = 1/2 * dQ^2
 
     # Filter out zero/imaginary frequencies
     valid_indices = freqs_cm > 1E-8
@@ -75,7 +74,7 @@ def compute_huang_rhys(gs_file, es_file, vib_file, file_type="xyz"):
 
     print(f"\nTotal Reorganization Energy: {reorg_energy_total:.6f} eV")
 
-    return freqs_cm, S_factors, reorg_energy_modes
+    return freqs_cm, S_factors, reorg_energy_modes, mdiff_vec, Kmat, Om, gs_struc
 
 
 def show_top_modes(title, indices, freqs_cm, S_factors, reorg_energy_modes, N):
@@ -83,9 +82,12 @@ def show_top_modes(title, indices, freqs_cm, S_factors, reorg_energy_modes, N):
     print(f"{'Mode':>4} {'Freq (cm^-1)':>15} {'S_i':>10} {'λ_i (eV)':>12}")
     for idx in indices[:N]:
         print(f"{idx + 1:4d} {freqs_cm[idx]:15.2f} {S_factors[idx]:10.6f} {reorg_energy_modes[idx]:12.6f}")
+    print()
 
 
 def plot_spectrum(freqs_cm, S_factors, outfile):
+    import matplotlib.pyplot as plt
+
     plt.figure(figsize=(8, 5))
     plt.bar(freqs_cm, S_factors, width=5, align='center', color='mediumblue', edgecolor='black', linewidth=0.7)
     plt.xlabel('Vibrational frequency (cm$^{-1}$)')
@@ -94,7 +96,7 @@ def plot_spectrum(freqs_cm, S_factors, outfile):
     plt.grid(True, linestyle='--', alpha=0.5)
     plt.tight_layout()
     plt.savefig(outfile, dpi=300)
-    print(f"Spectrum saved to '{outfile}'")
+    print(f"Spectrum saved as '{outfile}'")
 
 
 def save_data(freqs_cm, S_factors, outfile):
@@ -102,7 +104,7 @@ def save_data(freqs_cm, S_factors, outfile):
         f.write("Mode\tFrequency(cm^-1)\tHuang-Rhys Factor (S_i)\n")
         for i in range(len(freqs_cm)):
             f.write(f"{i + 1}\t{freqs_cm[i]:.2f}\t{S_factors[i]:.6f}\n")
-    print(f"Huang-Rhys data saved to '{outfile}'")
+    print(f"Huang-Rhys data saved as '{outfile}' (further used for fc_mini.py)")
 
 
 if __name__ == "__main__":
@@ -120,10 +122,9 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--filetype", default="xyz", help="Filetype of structure files (default: xyz)")
 
     # Actions
-    parser.add_argument("--topS", type=int, metavar="N", help="Show top N modes with highest Huang-Rhys factors")
-    parser.add_argument("--topLambda", type=int, metavar="N", help="Show top N modes with highest reorganization energies")
-    parser.add_argument("--plot", metavar="PNGFILE", help="Plot Huang-Rhys spectrum and save to file")
-    parser.add_argument("--save", metavar="TXTFILE", help="Save Huang-Rhys factors and frequencies to file")
+    parser.add_argument("-s", "--topS", type=int, metavar="N", help="Show top N modes with highest Huang-Rhys factors")
+    parser.add_argument("-l", "--topLambda", type=int, metavar="N", help="Show top N modes with highest reorganization energies")
+    parser.add_argument("-p", "--plot", metavar="PNGFILE", help="Plot Huang-Rhys spectrum and save to file")
 
     args = parser.parse_args()
 
@@ -135,7 +136,7 @@ if __name__ == "__main__":
         # NOTE: You are using excited-state vibrational modes (vib_es).
         # If results seem unreasonable or unphysical, consider using ground-state modes (--vib_gs) instead, especially if excited-state frequencies are less reliable in your calculations.
 
-    freqs_cm, S_factors, reorg_energy_modes = compute_huang_rhys(
+    freqs_cm, S_factors, reorg_energy_modes, mdiff_vec, Kmat, Om, gs_struc = compute_huang_rhys(
         gs_file=args.gs_file,
         es_file=args.es_file,
         vib_file=vib_file,
@@ -153,5 +154,4 @@ if __name__ == "__main__":
     if args.plot:
         plot_spectrum(freqs_cm, S_factors, args.plot)
 
-    if args.save:
-        save_data(freqs_cm, S_factors, args.save)
+    save_data(freqs_cm, S_factors, "hr.txt")
