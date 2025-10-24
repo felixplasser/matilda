@@ -3,14 +3,18 @@ Franck-Condon spectrum for anthracene
 *** Command
 fc_mini.py hr.txt
 
-*** Output
+*** Output (including user input)
 fc_mini <hr_data>
-Electronic adiabatic energy (in hartree): 0.1325717796310073
+Electronic adiabatic energy (in hartree): 0
 
-Electronic adiabatic energy: 29096.1424 cm^-1
-w_min(in cm^-1): 500
-S_min: 0.15
-Computed gaussian sigma from modes with omega <  500.0000 cm^-1: 247.2651 cm^-1
+Electronic adiabatic energy: 0.0000 cm^-1
+w_min(in cm^-1): 200
+          S_min: 0.02
+
+Using modes with omega >  200.0000 cm^-1 and S >  0.0200 as FC-active modes.
+Number of active modes : 6
+Number of sigma modes  : 60
+Computed gaussian sigma: 76.2417 cm^-1
 Spectrum saved to 'vibronic_spectrum.png'
 
 
