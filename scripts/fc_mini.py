@@ -41,7 +41,7 @@ except ValueError:
 
 # input S_min
 try:
-    S_min = float(input("S_min: "))
+    S_min = float(input("          S_min: "))
 except ValueError:
     print("Invalid input. Please enter a number.")
     sys.exit()
@@ -83,7 +83,11 @@ if len(FC_modes) == 0:
 # --- compute sigma from Eq. (8) sigma = sqrt(0.5 * sum_i (omega_i**2 * S_i)) ---
 sigma = 0.5 * sum((omega**2) * S for S, omega in sig_modes) ** 0.5
 
-print(f"Computed gaussian sigma from modes with omega < {w_min: .4f} cm^-1: {sigma:.4f} cm^-1")
+print()
+print(f"Using modes with omega > {w_min: .4f} cm^-1 and S > {S_min: .4f} as FC-active modes.")
+print(f"Number of active modes : {len(FC_modes)}")
+print(f"Number of sigma modes  : {len(sig_modes)}")
+print(f"Computed gaussian sigma: {sigma:.4f} cm^-1")
 
 
 # Spectrum generation parameters
