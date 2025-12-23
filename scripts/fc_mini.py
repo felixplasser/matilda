@@ -5,7 +5,7 @@ from __future__ import print_function
 """
 version 1.0.0
 author: Felix Plasser
-usage: Spectrum using Franck-Condon progression formula based on Huan-Rhys factors.
+usage: Spectrum using Franck-Condon progression formula based on Huang-Rhys factors.
 """
 
 import os, sys
@@ -19,6 +19,19 @@ print("fc_mini <hr_data>")
 if len(sys.argv) < 2:
     print("Error: hr_data.txt file required")
     sys.exit()
+
+print("Select mode: 1 = absorption (abs) or 2 = emission (emi)")
+
+choice = input("Enter 1 or 2: ").strip()
+
+if choice == "1":
+    mode_type = "abs"
+elif choice == "2":
+    mode_type = "emi"
+else:
+    print("Invalid input. Please enter 1 or 2.")
+    sys.exit()
+
 
 hr_data_file = sys.argv[1]
 
@@ -81,7 +94,7 @@ if len(FC_modes) == 0:
     sys.exit()
 
 # --- compute sigma from Eq. (8) sigma = sqrt(0.5 * sum_i (omega_i**2 * S_i)) ---
-sigma = 0.5 * sum((omega**2) * S for S, omega in sig_modes) ** 0.5
+sigma = sum(0.5 * (omega**2) * S for S, omega in sig_modes) ** 0.5
 
 print()
 print(f"Using modes with omega > {w_min: .4f} cm^-1 and S > {S_min: .4f} as FC-active modes.")
@@ -91,13 +104,26 @@ print(f"Computed gaussian sigma: {sigma:.4f} cm^-1")
 
 
 # Spectrum generation parameters
-k_max = 5               # Max vibrational quantum number for progression
-n_points = 2000         # Number of points in the energy grid
-
+k_max = int(max(S + 5 * math.sqrt(S) for S, _ in FC_modes))
+#print(f"k_max= {k_max}")
+#k_max = 5                # Max vibrational quantum number for progression
+n_points = 2000          # Number of points in the energy grid
 
 # Define energy grid (in cm^-1)
-E_min = E_0_cm - 1000
-E_max = E_0_cm + 10000
+fc_width = sum(S * omega for S, omega in FC_modes)
+
+if mode_type == "emi":
+    E_min = E_0_cm - 10000
+    E_max = E_0_cm + 10000
+    #E_min = E_0_cm - fc_width - 20*sigma
+    #E_max = E_0_cm + 10*sigma
+else:
+    E_min = E_0_cm - 5*sigma
+    E_max = E_0_cm + fc_width + 50*sigma
+
+#E_min = E_0_cm - 10000
+#E_max = E_0_cm + 10000
+
 energy_grid = numpy.linspace(E_min, E_max, n_points)
 
 
@@ -121,7 +147,10 @@ def build_spectrum(modes, k_max, E_0_cm, energy_grid, sigma):
         S, omega = modes[idx]
         for k in range(k_max + 1):
             new_intensity = intensity * (S**k) / math.factorial(k)
-            new_Eshift = E_shift + k * omega
+            if mode_type == "emi":
+                new_Eshift = E_shift - k * omega
+            else:
+                new_Eshift = E_shift + k * omega
             loop_over_modes(idx + 1, new_Eshift, new_intensity)
 
     # Start recursion
@@ -130,16 +159,81 @@ def build_spectrum(modes, k_max, E_0_cm, energy_grid, sigma):
 
 spectrum = build_spectrum(FC_modes, k_max, E_0_cm, energy_grid, sigma)
 
-spectrum /= spectrum.max()
+# Emission
+if mode_type == "emi":
+    spectrum /= spectrum.max()
+    wavelength_grid = 1e7 / energy_grid
 
-# Plot the vibronic spectrum in cm^-1
+    # Save emission data
+    output_file = "vibronic_emission_data.txt"
+    with open(output_file, "w") as f:
+        f.write("Wavenumber(cm^-1)   Wavelength(nm)   Intensity(normalized)\n")
+        for E, L, I in zip(energy_grid, wavelength_grid, spectrum):
+            f.write(f"{E:15.6f}  {L:15.6f}  {I:15.8f}\n")
+
+    print()
+    print(f"Emission spectrum saved to '{output_file}'")
+
+    # Plot emission
+    plt.figure(figsize=(8,5))
+    plt.plot(energy_grid, spectrum, color='darkred')
+    plt.xlabel('Wavenumber (cm$^{-1}$)')
+    plt.ylabel('Normalized Intensity')
+    plt.title('Simulated Vibronic Emission Spectrum')
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.tight_layout()
+    plt.savefig("vibronic_emission.png", dpi=300)
+    print("Plot saved as 'vibronic_emission.png'")
+
+    # Wavelength plot
+    plt.figure(figsize=(8,5))
+    plt.plot(wavelength_grid, spectrum, color='orange')
+    plt.xlabel('Wavelength (nm)')
+    plt.ylabel('Normalized Intensity')
+    plt.title('Simulated Vibronic Emission Spectrum (Wavelength)')
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.tight_layout()
+    plt.savefig("vibronic_emission_nm.png", dpi=300)
+    print("Plot saved as 'vibronic_emission_nm.png'")
+
+    sys.exit()
+
+# Absorption
+f = float(input("Oscillator strength (dimensionless): "))
+
+epsilon_prefactor = 2.315e8 * f
+epsilon_spectrum = epsilon_prefactor * spectrum
+
+wavelength_grid = 1e7 / energy_grid
+
+output_file = "vibronic_spectrum_data.txt"
+with open(output_file, "w") as f:
+    f.write("Wavenumber(cm^-1)   Wavelength(nm)   Molar Extinction Coefficients(M^-1 cm^-1)\n")
+    for E, L, I in zip(energy_grid, wavelength_grid, epsilon_spectrum):
+        f.write(f"{E:15.6f}  {L:15.6f}  {I:15.8f}\n")
+
+print()
+print(f"Absorption spectrum saved to '{output_file}'")
+
+# Plot absorption
 plt.figure(figsize=(8,5))
-plt.plot(energy_grid, spectrum, color='darkgreen')
+plt.plot(energy_grid, epsilon_spectrum, color='darkgreen')
 plt.xlabel('Wavenumber (cm$^{-1}$)')
-plt.ylabel('Normalized Intensity')
-plt.title('Simulated Vibronic Spectrum')
+plt.ylabel('Molar Extinction Coefficient (M$^{-1}$ cm$^{-1}$)')
+plt.title('Simulated Vibronic Absorption Spectrum')
 plt.grid(True, linestyle='--', alpha=0.5)
 plt.tight_layout()
 plt.savefig("vibronic_spectrum.png", dpi=300)
-print("Spectrum saved to 'vibronic_spectrum.png'")
+print("Plot saved as 'vibronic_spectrum.png'")
+
+# Wavelength plot
+plt.figure(figsize=(8,5))
+plt.plot(wavelength_grid, epsilon_spectrum, color='purple')
+plt.xlabel('Wavelength (nm)')
+plt.ylabel('Molar Extinction Coefficient (M$^{-1}$ cm$^{-1}$)')
+plt.title('Simulated Vibronic Absorption Spectrum (Wavelength)')
+plt.grid(True, linestyle='--', alpha=0.5)
+plt.tight_layout()
+plt.savefig("vibronic_spectrum_nm.png", dpi=300)
+print("Plot saved as 'vibronic_spectrum_nm.png'")
 

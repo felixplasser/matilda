@@ -76,13 +76,30 @@ Example
 
     fc_mini.py hr.txt 
 
-After running, one will be prompted to enter the following values:
+After launching the script, the user is prompted to select the type of spectrum and enter several parameters.
 
-1. Electronic adiabatic energy (in hartree) – energy gap between the equilibrium structures of ground and excited states.
-2. w_min (in cm^-1) – minimum vibrational frequency to include.
-3. S_min – minimum Huang–Rhys factor for mode inclusion.
+1. Select Spectrum Type
+The script first asks whether to compute an absorption or emission spectrum:
 
-The script then reads vibrational data from hr.txt, computes the Franck–Condon spectrum, and saves the output plot as vibronic_spectrum.png.
+.. code:: text
+
+    Select mode: 1 = absorption (abs) or 2 = emission (emi)
+    Enter 1 or 2:
+
+Enter 1 for absorption or 2 for emission 
+
+For absorption calculations, the oscillator strength is required.
+
+.. code:: text
+
+    Oscillator strength (dimensionless): 
+
+2. Electronic adiabatic energy (in hartree) – energy gap between the equilibrium structures of ground and excited states.
+3. w_min (in cm^-1) – minimum vibrational frequency to include.
+4. S_min – minimum Huang–Rhys factor for mode inclusion.
+
+``fc_mini.py`` computes Franck–Condon vibronic spectra for both absorption and emission, using vibrational frequencies and Huang–Rhys factors as input. 
+The script interactively guides the user through parameter selection and produces both numerical data and plots.
 
 
 Normal mode displacement
