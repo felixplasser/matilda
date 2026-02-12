@@ -21,7 +21,6 @@ if len(sys.argv) < 2:
     sys.exit()
 
 print("Select mode: 1 = absorption (abs) or 2 = emission (emi)")
-
 choice = input("Enter 1 or 2: ").strip()
 
 if choice == "1":
@@ -42,12 +41,13 @@ except ValueError:
     sys.exit()
 
 E_0_cm = delta_E_hartree * units.energy['rcm']
-print(f"\nElectronic adiabatic energy: {E_0_cm:.4f} cm^-1")
+print(f"Electronic adiabatic energy: {E_0_cm:.4f} cm^-1")
 
+f = float(input("\nOscillator strength (dimensionless): "))
 
 # input w_min
 try:
-    w_min = float(input("w_min(in cm^-1): "))
+    w_min = float(input("\nw_min(in cm^-1): "))
 except ValueError:
     print("Invalid input. Please enter a number.")
     sys.exit()
@@ -58,7 +58,6 @@ try:
 except ValueError:
     print("Invalid input. Please enter a number.")
     sys.exit()
-
 
 # Extract freqs and S factors
 freqs_cm = []
@@ -106,7 +105,6 @@ print(f"Computed gaussian sigma: {sigma:.4f} cm^-1")
 # Spectrum generation parameters
 k_max = int(max(S + 5 * math.sqrt(S) for S, _ in FC_modes))
 #print(f"k_max= {k_max}")
-#k_max = 5                # Max vibrational quantum number for progression
 n_points = 2000          # Number of points in the energy grid
 
 # Define energy grid (in cm^-1)
@@ -126,7 +124,6 @@ else:
 
 energy_grid = numpy.linspace(E_min, E_max, n_points)
 
-
 # Gaussian line shape in cm^-1
 def gaussian(x, x0, sigma):
     return numpy.exp(-0.5 * ((x - x0)/sigma)**2) / (sigma * numpy.sqrt(2 * numpy.pi))
@@ -137,12 +134,18 @@ def build_spectrum(modes, k_max, E_0_cm, energy_grid, sigma):
     S_total = sum(S for S, _ in modes)
     prefactor = math.exp(-S_total)
 
+    stick_energies = []
+    stick_intensities = []
+
     # Recursive loop
     def loop_over_modes(idx, E_shift, intensity):
         if idx == len(modes):
             # All modes handled -> place peak
             E_transition = E_0_cm + E_shift
             spectrum[:] += intensity * gaussian(energy_grid, E_transition, sigma)
+
+            stick_energies.append(E_transition)
+            stick_intensities.append(intensity)
             return
         S, omega = modes[idx]
         for k in range(k_max + 1):
@@ -155,28 +158,53 @@ def build_spectrum(modes, k_max, E_0_cm, energy_grid, sigma):
 
     # Start recursion
     loop_over_modes(0, 0.0, prefactor)
-    return spectrum
+    return spectrum, stick_energies, stick_intensities
 
-spectrum = build_spectrum(FC_modes, k_max, E_0_cm, energy_grid, sigma)
+
+spectrum, stick_energies, stick_intensities = build_spectrum(FC_modes, k_max, E_0_cm, energy_grid, sigma)
 
 # Emission
 if mode_type == "emi":
+    ein_coeff_emi = (10000 * 4 * math.pi * units.constants['h']) / (units.mass['kg'] * units.constants['c0']) * f * (E_0_cm**2)
+    Lamda = 1/ein_coeff_emi
+    print("\nLineshapes are ignored")
+    print(f"Einstein coefficient of Spontaneous Emission A: {ein_coeff_emi:.6e} s^-1")
+    print(f"Excited state lifetime:{Lamda:.6e} s")
+
     spectrum /= spectrum.max()
+
+    stick_intensities_normalised = numpy.array(stick_intensities) / max(stick_intensities)
+
     wavelength_grid = 1e7 / energy_grid
+    electronvolts_grid = energy_grid / 8065.54
+
+    stick_wavelengths = 1e7 / numpy.array(stick_energies)
+    stick_ev = numpy.array(stick_energies) /8065.54
 
     # Save emission data
     output_file = "vibronic_emission_data.txt"
     with open(output_file, "w") as f:
-        f.write("Wavenumber(cm^-1)   Wavelength(nm)   Intensity(normalized)\n")
-        for E, L, I in zip(energy_grid, wavelength_grid, spectrum):
-            f.write(f"{E:15.6f}  {L:15.6f}  {I:15.8f}\n")
+        f.write("Wavenumber(cm^-1)   Wavelength(nm)   Electronvolts(eV)   Intensity(normalized)\n")
+        for E, L, V, I in zip(energy_grid, wavelength_grid, electronvolts_grid, spectrum):
+            f.write(f"{E:15.6f}  {L:15.6f}  {V:15.6f}  {I:15.8f}\n")
 
     print()
     print(f"Emission spectrum saved to '{output_file}'")
 
+    # Save stick spectrum data
+    stick_output_file = "vibronic_emission_stick_data.txt"
+    with open(stick_output_file, "w") as f:
+        f.write("Wavenumber(cm^-1)   Wavelength(nm)   Electronvolts(eV)   Intensity(normalized)\n")
+        for E, L, V, I in zip(stick_energies, stick_wavelengths, stick_ev, stick_intensities_normalised):
+            f.write(f"{E:15.6f}  {L:15.6f}  {V:15.6f}  {I:15.8f}\n")
+    print(f"Stick spectrum saved to '{stick_output_file}'")
+
+
     # Plot emission
     plt.figure(figsize=(8,5))
     plt.plot(energy_grid, spectrum, color='darkred')
+    plt.vlines(stick_energies, 0, stick_intensities_normalised, color='blue', linewidth=1, label='Stick spectrum')
+    plt.xlim(E_min, E_max)
     plt.xlabel('Wavenumber (cm$^{-1}$)')
     plt.ylabel('Normalized Intensity')
     plt.title('Simulated Vibronic Emission Spectrum')
@@ -196,21 +224,67 @@ if mode_type == "emi":
     plt.savefig("vibronic_emission_nm.png", dpi=300)
     print("Plot saved as 'vibronic_emission_nm.png'")
 
+    #Electronvolts plot
+    plt.figure(figsize=(8,5))
+    plt.plot(electronvolts_grid, spectrum, color='blue')
+    plt.xlabel('Electronvolts (eV)')
+    plt.ylabel('Normalized Intensity')
+    plt.title('Simulated Vibronic Emission Spectrum (Electronvolts)')
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.tight_layout()
+    plt.savefig("vibronic_emission_ev.png", dpi=300)
+    print("Plot saved as 'vibronic_emission_ev.png'")
+
     sys.exit()
 
 # Absorption
-f = float(input("Oscillator strength (dimensionless): "))
+ein_coeff_abs = math.pi / (1000 * units.mass['kg'] * 100 * units.constants['c'] * units.constants['c0']) * f / E_0_cm
+print("\nLineshapes are ignored and, in the electric dipole approximation we can obtain Einstein coefficient of absorption(B).")
+print(f"B: {ein_coeff_abs:.6e} s gm^-1")
 
-epsilon_prefactor = 2.315e8 * f
-epsilon_spectrum = epsilon_prefactor * spectrum
+print("\nSelect absorption cross-section treatment:")
+print("1 = Assume omega/omega_I0 = 1 sharp lineshape approximation")
+print("2 = Use full omega/omega_I0 frequency dependence")
+
+pref_choice = input("Enter 1 or 2: ").strip()
+
+if pref_choice not in ["1", "2"]:
+    print("Invalid choice. Please restart and enter 1 or 2.")
+    sys.exit()
+
+cross_sec_constant = (100 * units.constants['h'])/(units.mass['kg'] * units.constants['c'] * (8 * math.pi)**0.5 * units.constants['c0'])
+epsilon_prefactor = cross_sec_constant * unit.constants['Nl'] / math.log(10)
+
+print()
+
+if pref_choice == "1":
+    print("Using Option 1:")
+    print("Assuming omega/omega_I0 = 1 (sharp lineshape approximation).")
+    print("The absorption cross section has uniform scaling across the spectrum.")
+
+    cross_sec_sigma = cross_sec_constant * f / sigma
+    print(f"\nCharacteristic peak absorption cross section: {cross_sec_sigma:.6e} cm^2")
+
+    epsilon_spectrum = epsilon_prefactor * spectrum
+
+elif pref_choice == "2":
+    print("Using Option 2:")
+    print("Including full frequency-dependent factor (omega/omega_I0).")
+    print("The absorption cross section now varies at each frequency point.")
+    print("No single fixed peak formula applies.")
+
+    omega_ratio = energy_grid / E_0_cm
+    epsilon_spectrum = epsilon_prefactor * omega_ratio * spectrum
+
 
 wavelength_grid = 1e7 / energy_grid
+electronvolts_grid = energy_grid / 8065.54
 
 output_file = "vibronic_spectrum_data.txt"
 with open(output_file, "w") as f:
-    f.write("Wavenumber(cm^-1)   Wavelength(nm)   Molar Extinction Coefficients(M^-1 cm^-1)\n")
-    for E, L, I in zip(energy_grid, wavelength_grid, epsilon_spectrum):
-        f.write(f"{E:15.6f}  {L:15.6f}  {I:15.8f}\n")
+    f.write("Wavenumber(cm^-1)   Wavelength(nm)   Electronvolts(eV)   Molar Extinction Coefficients(M^-1 cm^-1)\n")
+    for E, L, V, I in zip(energy_grid, wavelength_grid, electronvolts_grid, epsilon_spectrum):
+        f.write(f"{E:15.6f}  {L:15.6f}  {V:15.6f}  {I:15.8f}\n")
 
 print()
 print(f"Absorption spectrum saved to '{output_file}'")
@@ -237,3 +311,13 @@ plt.tight_layout()
 plt.savefig("vibronic_spectrum_nm.png", dpi=300)
 print("Plot saved as 'vibronic_spectrum_nm.png'")
 
+# Electronvolts plot
+plt.figure(figsize=(8,5))
+plt.plot(electronvolts_grid, epsilon_spectrum, color='brown')
+plt.xlabel('Electronvolts (eV)')
+plt.ylabel('Molar Extinction Coefficient (M$^{-1}$ cm$^{-1}$)')
+plt.title('Simulated Vibronic Absorption Spectrum (Electronvolts)')
+plt.grid(True, linestyle='--', alpha=0.5)
+plt.tight_layout()
+plt.savefig("vibronic_spectrum_ev.png", dpi=300)
+print("Plot saved as 'vibronic_spectrum_ev.png'")
