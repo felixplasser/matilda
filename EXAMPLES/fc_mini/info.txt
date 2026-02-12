@@ -9,37 +9,78 @@ fc_mini <hr_data>
 Select mode: 1 = absorption (abs) or 2 = emission (emi)
 Enter 1 or 2: 1
 Electronic adiabatic energy (in hartree): 0.1325699476419686
-
 Electronic adiabatic energy: 29095.7403 cm^-1
-w_min(in cm^-1): 500
-          S_min: 0.5
 
-Using modes with omega >  500.0000 cm^-1 and S >  0.5000 as FC-active modes.
-Number of active modes : 1
-Number of sigma modes  : 65
-Computed gaussian sigma: 757.1986 cm^-1
 Oscillator strength (dimensionless): 0.110242852
+
+w_min(in cm^-1): 250
+          S_min: 0.1
+
+Using modes with omega >  250.0000 cm^-1 and S >  0.1000 as FC-active modes.
+Number of active modes : 5
+Number of sigma modes  : 61
+Computed gaussian sigma: 135.2559 cm^-1
+
+Lineshapes are ignored and, in the electric dipole approximation we can obtain Einstein coefficient of absorption(B).
+B: 3.181559e+09 s gm^-1
+
+Select absorption cross-section treatment:
+1 = Assume omega/omega_I0 = 1 sharp lineshape approximation
+2 = Use full omega/omega_I0 frequency dependence
+Enter 1 or 2: 
+
+######
+Enter 1 or 2: 1
+
+Using Option 1:
+Assuming omega/omega_I0 = 1 (sharp lineshape approximation).
+The absorption cross section has uniform scaling across the spectrum.
+
+Characteristic peak absorption cross section: 2.879387e-16 cm^2
 
 Absorption spectrum saved to 'vibronic_spectrum_data.txt'
 Plot saved as 'vibronic_spectrum.png'
 Plot saved as 'vibronic_spectrum_nm.png'
+Plot saved as 'vibronic_spectrum_ev.png'
+
+######
+Enter 1 or 2: 2
+
+Using Option 2:
+Including full frequency-dependent factor (omega/omega_I0).
+The absorption cross section now varies at each frequency point.
+No single fixed peak formula applies.
+
+Absorption spectrum saved to 'vibronic_spectrum_data.txt'
+Plot saved as 'vibronic_spectrum.png'
+Plot saved as 'vibronic_spectrum_nm.png'
+Plot saved as 'vibronic_spectrum_ev.png'
 
 **EMI**
 fc_mini <hr_data>
 Select mode: 1 = absorption (abs) or 2 = emission (emi)
 Enter 1 or 2: 2
 Electronic adiabatic energy (in hartree): 0.1325699476419686
-
 Electronic adiabatic energy: 29095.7403 cm^-1
-w_min(in cm^-1): 500
-          S_min: 0.5
 
-Using modes with omega >  500.0000 cm^-1 and S >  0.5000 as FC-active modes.
-Number of active modes : 1
-Number of sigma modes  : 65
-Computed gaussian sigma: 862.3834 cm^-1
+Oscillator strength (dimensionless): 0.110242852
+
+w_min(in cm^-1): 250
+          S_min: 0.1
+
+Using modes with omega >  250.0000 cm^-1 and S >  0.1000 as FC-active modes.
+Number of active modes : 5
+Number of sigma modes  : 61
+Computed gaussian sigma: 135.2559 cm^-1
+
+Lineshapes are ignored
+Einstein coefficient of Spontaneous Emission A: 6.225175e+07 s^-1
+Excited state lifetime:1.606380e-08 s
 
 Emission spectrum saved to 'vibronic_emission_data.txt'
+Stick spectrum saved to 'vibronic_emission_stick_data.txt'
 Plot saved as 'vibronic_emission.png'
 Plot saved as 'vibronic_emission_nm.png'
+Plot saved as 'vibronic_emission_ev.png'
+
 
