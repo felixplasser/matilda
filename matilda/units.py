@@ -34,6 +34,7 @@ dipole={'D':2.54174619,
 }
 constants={'Nl':6.02214179E23,
            'c0':137.035999, # speed of light in a.u., 1/alpha
+           'c' :299792458, # speed of light in m/s
            'h' :6.62607015E-34
 }
 
